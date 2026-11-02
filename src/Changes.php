@@ -44,10 +44,15 @@ class Changes
 	/** What one publish brought live – the files of its commit in the content repository */
 	public function fromCommit(string $sha): array
 	{
-		$commit = $this->github->commit($this->settings->contentRepository, $sha);
-		$paths  = [];
+		// A commit never changes – only its files are kept. Titles and links are described anew each time, pages
+		// may have been renamed or moved since
+		$files = $this->kirby->cache('kirbydesk.workflow')->getOrSet('commit-files-' . $sha, fn () => array_map(
+			fn ($file) => array_intersect_key($file, array_flip(['filename', 'status', 'previous_filename'])),
+			$this->github->commit($this->settings->contentRepository, $sha)['files'] ?? []
+		));
+		$paths = [];
 
-		foreach ($commit['files'] ?? [] as $file) {
+		foreach ($files as $file) {
 			// A renamed file: gone under the old name, new under the new one
 			if ($file['status'] === 'renamed' && isset($file['previous_filename']) === true) {
 				$paths[$file['previous_filename']] = 'deleted';

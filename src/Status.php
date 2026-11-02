@@ -78,7 +78,7 @@ class Status
 	}
 
 	/** Every publish (newest first): date, person and – if it failed – the reason */
-	public function history(int $limit = 20, string|null $contentRepository = null): array
+	public function history(int $limit = 25, string|null $contentRepository = null): array
 	{
 		$entries = [];
 		$commits = [];
@@ -174,14 +174,26 @@ class Status
 		return null;
 	}
 
-	/** The reason is extra – without it („Failed“ alone) the status still shows */
+	/** The reason is extra – without it („Failed“ alone) the status still shows. A finished run never changes,
+	 so its reason is kept (also when there is none) */
 	protected function failureMessage(int $runId): string|null
 	{
+		$cache = $this->kirby->cache('kirbydesk.workflow');
+		$key   = 'failure-' . $runId;
+
+		if (is_array($known = $cache->get($key)) === true) {
+			return $known['message'];
+		}
+
 		try {
-			return $this->github->failureMessage($runId);
+			$message = $this->github->failureMessage($runId);
 		} catch (\Throwable) {
 			return null;
 		}
+
+		$cache->set($key, ['message' => $message]);
+
+		return $message;
 	}
 
 	/** Date and time in the language of the Panel account („30. Oktober 2026, 14:12“) */

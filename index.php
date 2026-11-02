@@ -126,28 +126,24 @@ $extension['api'] = [
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
 		$route('history', function ($kirby, $settings, $github) {
 			$status  = new Status($kirby, $github);
-			$entries = $status->history(contentRepository: $settings->contentRepository);
+			$entries = $status->history(25, $settings->contentRepository);
 
 			return [
 				'entries' => $entries,
-				// Older publishes than shown: link to the commits of the content repository on GitHub
-				// TEMPORARY: always, to look at it – then only with `$status->more`
-				'more'    => true,
+				// Probably older publishes than shown: link to the commits of the content repository on GitHub
+				'more'    => $status->more,
 				'url'     => 'https://github.com/' . ($settings->contentRepository ?? $settings->repository) . '/commits',
 			];
 		}),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
 		[
-			// What one publish brought live – a commit never changes, so it is kept
+			// What one publish brought live
 			'pattern' => 'workflow/commit/(:any)',
 			'method'  => 'GET',
 			'action'  => function (string $sha) use ($settings, $part) {
 				$kirby    = Kirby::instance();
 				$settings = $settings();
-				return $part(fn () => $kirby->cache('kirbydesk.workflow')->getOrSet(
-					'commit-' . $sha,
-					fn () => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha)
-				));
+				return $part(fn () => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha));
 			},
 		],
 		[

@@ -44,8 +44,9 @@
 	text-decoration: underline;
 }
 
-/* Icon in front of the title (History) */
-.k-workflow-items .k-item-title .k-icon {
+/* Icon in front of the date and the name (History) */
+.k-workflow-items .k-item-title .k-icon,
+.k-workflow-items .k-item-info .k-icon {
 	display: inline-block;
 	vertical-align: -3px;
 	margin-inline-end: var(--spacing-2);

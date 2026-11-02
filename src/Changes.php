@@ -43,10 +43,15 @@ class Changes
 			$statuses       = array_unique($item['statuses']);
 			$item['status'] = count($statuses) === 1 ? $statuses[0] : 'changed';
 			unset($item['statuses']);
-			return $this->describe($item);
+			return [...$this->describe($item), 'sort' => $item['directory'] . '/' . ($item['name'] ?? '')];
 		}, $items);
 
-		usort($items, fn ($a, $b) => strcmp($a['path'], $b['path']));
+		// In the order of the content folder: parents before their children, files after their page
+		usort($items, fn ($a, $b) => strcmp($a['sort'], $b['sort']));
+		$items = array_map(function ($item) {
+			unset($item['sort']);
+			return $item;
+		}, $items);
 
 		return array_values($items);
 	}

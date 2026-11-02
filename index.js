@@ -153,7 +153,8 @@ panel.plugin("kirbydesk/workflow", {
 				},
 				// Switching tabs only shows what is already loaded – no new page
 				tabs() {
-					const tab = (name, label, icon, badge = null) => ({ name, label, icon, badge, click: () => this.select(name) });
+					// While a tab loads, its icon turns into Kirby's spinner (like kirby-explorer) – the area below stays empty
+					const tab = (name, label, icon, badge = null) => ({ name, label, icon: this[name] === null ? "loader" : icon, badge, click: () => this.select(name) });
 					const tabs = [];
 					if (this.hasChanges) {
 						tabs.push(tab("changes", this.$t("kirbydesk.workflow.changes"), "edit", this.changes?.data?.length || null));
@@ -272,21 +273,21 @@ panel.plugin("kirbydesk/workflow", {
 					<template v-if="connectionError" />
 
 					<template v-else-if="current === 'changes'">
-						<k-empty v-if="!changes" icon="loader" />
+						<template v-if="!changes" />
 						<k-box v-else-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
 						<k-items v-else :items="changeItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
 					</template>
 
 					<template v-else-if="current === 'history'">
-						<k-empty v-if="!history" icon="loader" />
+						<template v-if="!history" />
 						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
 						<!-- One line: date, the person on the right (Kirby's list info) -->
 						<k-items v-else :items="historyItems" layout="list" class="k-workflow-items" />
 					</template>
 
 					<template v-else-if="current === 'github'">
-						<k-empty v-if="!github" icon="loader" />
+						<template v-if="!github" />
 						<k-box v-else-if="github.error" theme="negative" icon="alert" :text="github.error" />
 						<template v-else>
 							<k-section v-if="github.data.content" :label="$t('kirbydesk.workflow.content')">

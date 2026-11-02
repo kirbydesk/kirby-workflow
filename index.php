@@ -66,25 +66,6 @@ $extension['areas'] = [
 				},
 			],
 		],
-		'drawers' => [
-			// What one publish brought live – opened from „History“
-			'workflow/commit/(:any)' => [
-				'load' => function (string $sha) use ($settings) {
-					$kirby    = Kirby::instance();
-					$settings = $settings();
-					$title    = $kirby->request()->get('title');
-
-					return [
-						'component' => 'k-workflow-commit-drawer',
-						'props'     => [
-							'icon'  => 'clock',
-							'title' => is_string($title) && $title !== '' ? $title : I18n::translate('kirbydesk.workflow.history'),
-							'items' => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha),
-						],
-					];
-				},
-			],
-		],
 		'dialogs' => [
 			'workflow/publish' => [
 				// Like the activation question of kirby-explorer: small headline, the facts in a notice box
@@ -138,6 +119,19 @@ $extension['api'] = [
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
 		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history(contentRepository: $settings->contentRepository)),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
+		[
+			// What one publish brought live – a commit never changes, so it is kept
+			'pattern' => 'workflow/commit/(:any)',
+			'method'  => 'GET',
+			'action'  => function (string $sha) use ($settings, $part) {
+				$kirby    = Kirby::instance();
+				$settings = $settings();
+				return $part(fn () => $kirby->cache('kirbydesk.workflow')->getOrSet(
+					'commit-' . $sha,
+					fn () => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha)
+				));
+			},
+		],
 		[
 			'pattern' => 'workflow/status',
 			'method'  => 'GET',

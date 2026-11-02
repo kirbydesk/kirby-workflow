@@ -38,23 +38,34 @@ panel.plugin("kirbydesk/workflow", {
 		// What one publish brought live – same list as „Changes“
 		"k-workflow-commit-drawer": {
 			extends: "k-text-drawer",
-			props: { items: { type: Array, default: () => [] } },
+			props: { commit: String },
+			// Opens at once – the list follows (`null` while loading)
+			data() {
+				return { list: null, error: null };
+			},
+			computed: {
+				listItems() {
+					return changeItems(this, this.list ?? []);
+				},
+				count() {
+					return this.$t(this.list?.length === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: this.list?.length ?? 0 });
+				}
+			},
+			async created() {
+				const result = await this.$api.get("workflow/commit/" + this.commit).catch((e) => ({ data: null, error: e.message }));
+				this.list = result.data ?? [];
+				this.error = result.error;
+			},
 			// Kirby focuses the first button (the one at the top right) – nothing to type here, so no focus
 			mounted() {
 				setTimeout(() => document.activeElement?.blur(), 50);
 			},
-			computed: {
-				listItems() {
-					return changeItems(this, this.items);
-				},
-				count() {
-					return this.$t(this.items.length === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: this.items.length });
-				}
-			},
 			template: `
 				<k-drawer ref="drawer" class="k-workflow-commit-drawer" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
+					<k-empty v-if="list === null" icon="loader" />
+					<k-box v-else-if="error" theme="negative" icon="alert" :text="error" />
 					<!-- The number as Kirby's section label above the list -->
-					<k-section :label="count">
+					<k-section v-else :label="count">
 						<k-items :items="listItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
 					</k-section>
 				</k-drawer>
@@ -103,7 +114,10 @@ panel.plugin("kirbydesk/workflow", {
 						// Kirby's user icon in front of the name
 						info: entry.by ? '<svg class="k-icon" data-type="user" aria-hidden="true"><use xlink:href="#icon-user"></use></svg>' + this.$helper.string.escapeHTML(entry.by) : "",
 						// With changes: opens what this publish brought live
-						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,
+						link: entry.commit ? () => this.$panel.drawer.open({
+							component: "k-workflow-commit-drawer",
+							props: { icon: "clock", title: entry.title, commit: entry.commit }
+						}) : false,
 						buttons: entry.failed ? [this.badge(entry.reason
 							? this.$t("kirbydesk.workflow.failed.reason", { reason: entry.reason })
 							: this.$t("kirbydesk.workflow.failed"), "negative")] : []

@@ -147,14 +147,19 @@ panel.plugin("kirbydesk/workflow", {
 					}
 					return items;
 				},
+				// The selected tab before the list of tabs is known – only for the spinner
+				shown() {
+					return this.selected ?? (this.hasChanges ? "changes" : "history");
+				},
 				// The requested tab – or the first one, if it is hidden (no history yet)
 				current() {
 					return this.tabs.find((tab) => tab.name === this.selected)?.name ?? this.tabs[0]?.name;
 				},
 				// Switching tabs only shows what is already loaded – no new page
 				tabs() {
-					// While a tab loads, its icon turns into Kirby's spinner (like kirby-explorer) – the area below stays empty
-					const tab = (name, label, icon, badge = null) => ({ name, label, icon: this[name] === null ? "loader" : icon, badge, click: () => this.select(name) });
+					// While the shown tab loads, its icon turns into Kirby's spinner (like kirby-explorer) – the others load
+					// quietly in the background (number of changes, whether there is a history)
+					const tab = (name, label, icon, badge = null) => ({ name, label, icon: this[name] === null && name === this.shown ? "loader" : icon, badge, click: () => this.select(name) });
 					const tabs = [];
 					if (this.hasChanges) {
 						tabs.push(tab("changes", this.$t("kirbydesk.workflow.changes"), "edit", this.changes?.data?.length || null));

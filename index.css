@@ -66,13 +66,14 @@
 	display: none;
 }
 
-/* „Older publishes on GitHub“ below the history – a link like the crumbs */
+/* „See complete history on GitHub“ below the history – centred, grey like Kirby's info texts */
 .k-workflow-more {
 	margin-top: var(--spacing-3);
 	font-size: var(--text-sm);
+	text-align: center;
 }
 .k-workflow-more a {
-	color: var(--color-focus);
+	color: var(--color-text-dimmed);
 }
 .k-workflow-more a:hover {
 	text-decoration: underline;

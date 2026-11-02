@@ -89,12 +89,16 @@ class Changes
 		if ($item['type'] === 'file') {
 			$file = $id === '' ? $this->kirby->site()->file($item['name']) : $page?->file($item['name']);
 
+			$exists = $item['status'] !== 'deleted' && $file !== null;
+
 			return [
 				'type'   => 'file',
 				'status' => $item['status'],
 				'title'  => $item['name'],
 				'path'   => $id,
-				'url'    => $item['status'] !== 'deleted' ? $file?->url() : null,
+				'url'    => $exists ? $file->url() : null,
+				// Preview like in Kirby's file lists – small, the list only shows it as a tile
+				'image'  => $exists && $file->type() === 'image' ? $file->thumb(['width' => 96, 'height' => 96, 'crop' => true])->url() : null,
 			];
 		}
 

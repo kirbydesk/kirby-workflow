@@ -45,7 +45,7 @@ panel.plugin("kirbydesk/workflow", {
 						info: this.$helper.string.escapeHTML(item.path),
 						link: item.url ?? false,
 						target: "_blank",
-						image: { icon: item.type === "file" ? "file" : "page", back: "black" },
+						image: item.image ? { src: item.image, cover: true, back: "pattern" } : { icon: item.type === "file" ? "file" : "page", back: "black" },
 						buttons: [this.badge(this.$t("kirbydesk.workflow.status." + item.status), this.statusTheme(item.status))]
 					}));
 				},

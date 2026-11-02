@@ -159,19 +159,7 @@ $extension['api'] = [
 		// Without a connection every tab would be empty – the view then shows one message (GitHub's own answer)
 		$route('connection', fn ($kirby, $settings, $github) => $github->permissions() !== null),
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
-		$route('history', function ($kirby, $settings, $github) {
-			$history = (new Status($kirby, $github))->history(contentRepository: $settings->contentRepository);
-			$changes = new Changes($kirby, $github, $settings);
-
-			// Number of changed pages and files per publish – a commit never changes, so it is cached
-			return array_map(function ($entry) use ($kirby, $changes) {
-				if ($entry['commit'] !== null) {
-					$cache          = $kirby->cache('kirbydesk.workflow');
-					$entry['count'] = $cache->getOrSet('count-' . $entry['commit'], fn () => count($changes->fromCommit($entry['commit'])));
-				}
-				return $entry;
-			}, $history);
-		}),
+		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history(contentRepository: $settings->contentRepository)),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
 		[
 			'pattern' => 'workflow/status',

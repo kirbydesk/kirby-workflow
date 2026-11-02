@@ -35,11 +35,17 @@ panel.plugin("kirbydesk/workflow", {
 			computed: {
 				listItems() {
 					return changeItems(this, this.items);
+				},
+				count() {
+					return this.$t(this.items.length === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: this.items.length });
 				}
 			},
 			template: `
 				<k-drawer ref="drawer" class="k-workflow-commit-drawer" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
-					<k-items :items="listItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
+					<!-- The number as Kirby's section label above the list -->
+					<k-section :label="count">
+						<k-items :items="listItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
+					</k-section>
 				</k-drawer>
 			`
 		},
@@ -82,7 +88,7 @@ panel.plugin("kirbydesk/workflow", {
 					return this.history.data.map((entry, index) => ({
 						id: index,
 						text: this.$helper.string.escapeHTML(entry.date),
-						info: this.$helper.string.escapeHTML([entry.by, entry.count ? this.$t(entry.count === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: entry.count }) : null].filter(Boolean).join(" · ")),
+						info: this.$helper.string.escapeHTML(entry.by ?? ""),
 						image: { icon: "clock", back: "black" },
 						// With changes: opens what this publish brought live
 						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,

@@ -111,11 +111,11 @@ $part = function (callable $load): array {
 $route = fn (string $pattern, callable $load) => [
 	'pattern' => 'workflow/' . $pattern,
 	'method'  => 'GET',
-	'action'  => function () use ($settings, $load, $part) {
+	'action'  => function (...$arguments) use ($settings, $load, $part) {
 		$kirby    = Kirby::instance();
 		$settings = $settings();
 		$github   = new GitHub($kirby, $settings);
-		return $part(fn () => $load($kirby, $settings, $github));
+		return $part(fn () => $load($kirby, $settings, $github, ...$arguments));
 	},
 ];
 
@@ -136,24 +136,9 @@ $extension['api'] = [
 			];
 		}),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
-		[
-			// What one publish brought live
-			'pattern' => 'workflow/commit/(:any)',
-			'method'  => 'GET',
-			'action'  => function (string $sha) use ($settings, $part) {
-				$kirby    = Kirby::instance();
-				$settings = $settings();
-				return $part(fn () => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha));
-			},
-		],
-		[
-			'pattern' => 'workflow/status',
-			'method'  => 'GET',
-			'action'  => function () use ($settings) {
-				$kirby = Kirby::instance();
-				return (new Status($kirby, new GitHub($kirby, $settings())))->toArray();
-			},
-		],
+		// What one publish brought live
+		$route('commit/(:any)', fn ($kirby, $settings, $github, $sha) => (new Changes($kirby, $github, $settings))->fromCommit($sha)),
+		$route('status', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->toArray()),
 	],
 ];
 

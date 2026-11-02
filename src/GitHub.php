@@ -34,14 +34,8 @@ class GitHub
 		]);
 	}
 
-	/** Latest runs of the publishing workflow started by hand (newest first) */
+	/** Latest runs of the publishing workflow started by hand (newest first) and how many there are in total */
 	public function runs(int $limit = 20): array
-	{
-		return $this->runsWithTotal($limit)['runs'];
-	}
-
-	/** Latest runs and how many there are in total */
-	public function runsWithTotal(int $limit = 20): array
 	{
 		$data = $this->request('GET', $this->workflowPath() . '/runs?event=workflow_dispatch&per_page=' . $limit);
 		return ['runs' => $data['workflow_runs'] ?? [], 'total' => $data['total_count'] ?? 0];
@@ -125,30 +119,10 @@ class GitHub
 		return '/repos/' . $this->settings->repository . '/actions/workflows/' . rawurlencode($this->settings->workflow);
 	}
 
+	/** As the installation of the App */
 	protected function request(string $method, string $path, array|null $body = null): array
 	{
-		$response = Remote::request(static::API . $path, [
-			'method'  => $method,
-			'headers' => [
-				'Accept'               => 'application/vnd.github+json',
-				'Authorization'        => 'Bearer ' . $this->token(),
-				'User-Agent'           => 'kirby-workflow',
-				'X-GitHub-Api-Version' => '2022-11-28',
-				'Content-Type'         => 'application/json',
-			],
-			'data'    => $body !== null ? json_encode($body) : null,
-		]);
-
-		if ($response->code() >= 300) {
-			throw new Exception(message: static::message($response));
-		}
-
-		return $response->json() ?? [];
-	}
-
-	protected function token(): string
-	{
-		return $this->access()['token'];
+		return static::call($method, $path, $this->access()['token'], $body);
 	}
 
 	/** Installation token of the App and its permissions – cached until shortly before the token expires */
@@ -187,16 +161,19 @@ class GitHub
 		return $data . '.' . rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
 	}
 
-	protected static function call(string $method, string $path, string $jwt): array
+	/** One request to GitHub – with the installation token or, to get one, as the App itself (JWT) */
+	protected static function call(string $method, string $path, string $bearer, array|null $body = null): array
 	{
 		$response = Remote::request(static::API . $path, [
 			'method'  => $method,
 			'headers' => [
 				'Accept'               => 'application/vnd.github+json',
-				'Authorization'        => 'Bearer ' . $jwt,
+				'Authorization'        => 'Bearer ' . $bearer,
 				'User-Agent'           => 'kirby-workflow',
 				'X-GitHub-Api-Version' => '2022-11-28',
+				'Content-Type'         => 'application/json',
 			],
+			'data'    => $body !== null ? json_encode($body) : null,
 		]);
 
 		if ($response->code() >= 300) {

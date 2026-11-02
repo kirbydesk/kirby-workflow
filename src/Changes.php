@@ -124,7 +124,6 @@ class Changes
 		$items[$key]['statuses'][] = $status;
 	}
 
-	/** Title, path and – if it exists here – a link */
 	/** Title, crumbs of the parent pages (Panel links like in kirby-explorer), Panel link and the page on the website */
 	protected function describe(array $item): array
 	{

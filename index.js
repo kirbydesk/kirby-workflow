@@ -1,3 +1,9 @@
+// A state on the right of a list item (styled like kirby-explorer's badges in index.css)
+const badge = (text, theme) => ({ text, theme, variant: "filled", size: "xs" });
+
+// Kirby's icon inside a text of a list item (same markup as <k-icon>)
+const icon = (type) => `<svg class="k-icon" data-type="${type}" aria-hidden="true"><use xlink:href="#icon-${type}"></use></svg>`;
+
 // Kirby list items for changed pages and files – in „Changes“ and in the drawer of a past publish. Like the file
 // list of kirby-explorer: the title opens it in the Panel, below it the parent pages as links into the Panel,
 // on the right the state
@@ -10,7 +16,7 @@ const changeItems = (vm, list) => {
 		info: item.crumbs.map((crumb) => `<a href="${escape(crumb.panel)}">${escape(crumb.title)}</a>`).join(" › "),
 		link: item.panel ?? false,
 		image: item.image ? { src: item.image, cover: true, back: "pattern" } : { icon: item.type === "file" ? "file" : "page", back: "black" },
-		buttons: [{ text: vm.$t("kirbydesk.workflow.status." + item.status), theme: themes[item.status], variant: "filled", size: "xs" }]
+		buttons: [badge(vm.$t("kirbydesk.workflow.status." + item.status), themes[item.status])]
 	}));
 };
 
@@ -105,25 +111,21 @@ panel.plugin("kirbydesk/workflow", {
 				connectionError() {
 					return this.connection?.error ?? null;
 				},
-				// Kirby's list items: title, info on the right, buttons for the state – no own styles
-				// Like the file list of kirby-explorer: the title opens it in the Panel, below it the parent pages as
-				// links into the Panel, on the right the state
 				changeItems() {
 					return changeItems(this, this.changes.data);
 				},
 				historyItems() {
 					return this.history.data.entries.map((entry, index) => ({
 						id: index,
-						// Kirby's clock icon in front of the date (same markup as <k-icon>), not as a column of its own
-						text: '<svg class="k-icon" data-type="clock" aria-hidden="true"><use xlink:href="#icon-clock"></use></svg>' + this.$helper.string.escapeHTML(entry.date),
-						// Kirby's user icon in front of the name
-						info: entry.by ? '<svg class="k-icon" data-type="user" aria-hidden="true"><use xlink:href="#icon-user"></use></svg>' + this.$helper.string.escapeHTML(entry.by) : "",
+						// Kirby's clock icon in front of the date and its user icon in front of the name – not as columns of their own
+						text: icon("clock") + this.$helper.string.escapeHTML(entry.date),
+						info: entry.by ? icon("user") + this.$helper.string.escapeHTML(entry.by) : "",
 						// With changes: opens what this publish brought live
 						link: entry.commit ? () => this.$panel.drawer.open({
 							component: "k-workflow-commit-drawer",
 							props: { icon: "clock", title: entry.title, commit: entry.commit }
 						}) : false,
-						buttons: entry.failed ? [this.badge(entry.reason
+						buttons: entry.failed ? [badge(entry.reason
 							? this.$t("kirbydesk.workflow.failed.reason", { reason: entry.reason })
 							: this.$t("kirbydesk.workflow.failed"), "negative")] : []
 					}));
@@ -143,7 +145,7 @@ panel.plugin("kirbydesk/workflow", {
 						const text = this.$helper.string.escapeHTML(code.last.date + (code.last.by ? " · " + code.last.by : ""));
 						items.push({
 							...this.row("last", this.$t("kirbydesk.workflow.last"), code.last.failed ? "" : text),
-							buttons: code.last.failed ? [this.badge(this.$t("kirbydesk.workflow.failed") + " · " + code.last.date, "negative")] : []
+							buttons: code.last.failed ? [badge(this.$t("kirbydesk.workflow.failed") + " · " + code.last.date, "negative")] : []
 						});
 					}
 					return items;
@@ -214,10 +216,12 @@ panel.plugin("kirbydesk/workflow", {
 				async poll() {
 					let status;
 					try {
-						status = await this.$api.get("workflow/status");
+						status = (await this.$api.get("workflow/status")).data;
 					} catch (e) {
 						return;
 					}
+					// No answer from GitHub – like a failed request: stop asking
+					if (!status) return;
 					const wasRunning = this.running;
 					this.running = Boolean(status.running);
 					if (wasRunning && !this.running) {
@@ -242,9 +246,6 @@ panel.plugin("kirbydesk/workflow", {
 				publish() {
 					this.$panel.dialog.open("workflow/publish");
 				},
-				badge(text, theme) {
-					return { text, theme, variant: "filled", size: "xs" };
-				},
 				row(id, label, info) {
 					return { id, text: this.$helper.string.escapeHTML(label), info, link: false };
 				},
@@ -252,7 +253,7 @@ panel.plugin("kirbydesk/workflow", {
 				right(id, label, allowed) {
 					return {
 						...this.row(id, label, allowed ? this.$t("kirbydesk.workflow.allowed") : ""),
-						buttons: allowed ? [] : [this.badge(this.$t("kirbydesk.workflow.missing"), "negative")]
+						buttons: allowed ? [] : [badge(this.$t("kirbydesk.workflow.missing"), "negative")]
 					};
 				},
 				repoLink(repository) {

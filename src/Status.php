@@ -5,8 +5,8 @@ namespace Kirbydesk\Workflow;
 use Kirby\Cms\App;
 
 /**
- * State of publishing, read from the runs of the workflow: is one running, when was the last successful one
- * and who started it (from the run name „… · Name“), did the latest one fail.
+ * State of publishing, read from the runs of the workflow: is one running, did the latest one fail, and the
+ * history – who published when (from the run name „… · Name“).
  */
 class Status
 {
@@ -29,10 +29,9 @@ class Status
 
 	public function toArray(): array
 	{
-		$runs       = $this->github->runs();
+		$runs       = $this->github->runs()['runs'];
 		$dispatched = $this->kirby->cache('kirbydesk.workflow')->get('dispatched');
 		$running    = null;
-		$published  = null;
 		$failed     = null;
 
 		foreach ($runs as $run) {
@@ -42,7 +41,6 @@ class Status
 			}
 
 			if ($run['conclusion'] === 'success') {
-				$published = $run;
 				break;
 			}
 
@@ -59,19 +57,8 @@ class Status
 		}
 
 		return [
-			'running'   => $running !== null ? [
-				'since' => $running['created_at'],
-				'time'  => date('H:i', strtotime($running['created_at'])),
-			] : null,
-			'published' => $published !== null ? [
-				'at'   => $published['updated_at'],
-				'date' => static::date($published['updated_at'], $this->kirby),
-				'by'   => static::person($published),
-				'id'   => $published['id'],
-			] : null,
-			'failed'    => $running === null && $failed !== null ? [
-				'at'      => $failed['updated_at'],
-				'id'      => $failed['id'],
+			'running' => $running !== null,
+			'failed'  => $running === null && $failed !== null ? [
 				'message' => $this->failureMessage($failed['id']),
 			] : null,
 		];
@@ -92,7 +79,7 @@ class Status
 			}
 		}
 
-		$result     = $this->github->runsWithTotal($limit);
+		$result     = $this->github->runs($limit);
 		$this->more = $result['total'] > count($result['runs']);
 
 		foreach ($result['runs'] as $run) {
@@ -109,13 +96,15 @@ class Status
 				continue;
 			}
 
+			$date      = static::date($run['updated_at'], $this->kirby);
+			$person    = static::person($run);
 			$entries[] = [
-				'date'   => static::date($run['updated_at'], $this->kirby),
-				'by'     => static::person($run),
+				'date'   => $date,
+				'by'     => $person,
 				'failed' => $failed,
 				'reason' => $failed ? $this->failureMessage($run['id']) : null,
 				'commit' => $commit,
-				'title'  => static::date($run['updated_at'], $this->kirby) . (static::person($run) ? ' · ' . static::person($run) : ''),
+				'title'  => $date . ($person ? ' · ' . $person : ''),
 			];
 		}
 

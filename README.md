@@ -62,6 +62,7 @@ The settings live outside the repository, so they exist only where content is ed
 | `contentRepository` | Repository with the published content – without it there is no tab **Changes** |
 | `contentRef` | Its branch – default `main` |
 | `codeWorkflow` | Workflow that deploys the code – shown under **GitHub** |
+| `ignoreRuns` | Runs of the workflow whose name starts with this don't publish content (e.g. `Put Code Live` for runs that only bring code live) – not shown as publishing, not in the history |
 
 Keep the folder `.workflow` away from the web: Kirby's `.htaccess` blocks folders starting with a dot, a separate public folder does too. Make the key readable only for the account running PHP.
 

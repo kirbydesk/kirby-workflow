@@ -34,11 +34,19 @@ class GitHub
 		]);
 	}
 
-	/** Latest runs of the publishing workflow started by hand (newest first) and how many there are in total */
+	/** Latest runs of the publishing workflow started by hand (newest first) and how many there are in total.
+	 Without the runs the settings ignore (`ignoreRuns`, e.g. only code) */
 	public function runs(int $limit = 20): array
 	{
-		$data = $this->request('GET', $this->workflowPath() . '/runs?event=workflow_dispatch&per_page=' . $limit);
-		return ['runs' => $data['workflow_runs'] ?? [], 'total' => $data['total_count'] ?? 0];
+		$data   = $this->request('GET', $this->workflowPath() . '/runs?event=workflow_dispatch&per_page=' . $limit);
+		$runs   = $data['workflow_runs'] ?? [];
+		$ignore = $this->settings->ignoreRuns;
+
+		if ($ignore !== null) {
+			$runs = array_values(array_filter($runs, fn ($run) => str_starts_with($run['display_title'] ?? '', $ignore) === false));
+		}
+
+		return ['runs' => $runs, 'total' => $data['total_count'] ?? 0];
 	}
 
 	/** Latest runs of any workflow in the repository of the settings (newest first) */

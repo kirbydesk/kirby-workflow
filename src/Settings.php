@@ -24,7 +24,9 @@ class Settings
 		public readonly string|null $contentRepository = null,
 		public readonly string $contentRef = 'main',
 		/** Workflow that publishes the code (for „Last published“ under „Code“) */
-		public readonly string|null $codeWorkflow = null
+		public readonly string|null $codeWorkflow = null,
+		/** Runs of the workflow whose name starts with this bring no content live (e.g. only code) – ignored */
+		public readonly string|null $ignoreRuns = null
 	) {
 	}
 
@@ -64,7 +66,8 @@ class Settings
 			privateKey: F::read($keyFile),
 			contentRepository: $github['contentRepository'] ?? null,
 			contentRef:        $github['contentRef'] ?? 'main',
-			codeWorkflow:      $github['codeWorkflow'] ?? null
+			codeWorkflow:      $github['codeWorkflow'] ?? null,
+			ignoreRuns:        is_string($github['ignoreRuns'] ?? null) && $github['ignoreRuns'] !== '' ? $github['ignoreRuns'] : null
 		);
 	}
 

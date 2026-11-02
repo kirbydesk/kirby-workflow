@@ -193,7 +193,6 @@ panel.plugin("kirbydesk/workflow", {
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
 								variant="filled"
-								theme="positive"
 								size="sm"
 								@click="publish"
 							/>

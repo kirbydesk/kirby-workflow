@@ -8,7 +8,7 @@ return [
 	'kirbydesk.workflow.confirm'         => 'Inhalte veröffentlichen',
 	'kirbydesk.workflow.confirm.text'    => 'Alle gespeicherten Inhalte werden auf der Live-Website veröffentlicht.',
 	'kirbydesk.workflow.confirm.unsaved' => 'Ungespeicherte Änderungen werden nicht veröffentlicht.',
-	'kirbydesk.workflow.running.text'    => 'Das dauert etwa eine Minute.',
+	'kirbydesk.workflow.running.text'    => 'Die Änderungen werden auf die Live-Website übertragen. Das kann einen Moment dauern.',
 	'kirbydesk.workflow.hide'            => 'Ausblenden',
 	'kirbydesk.workflow.done'            => 'Inhalte veröffentlicht',
 	'kirbydesk.workflow.done.text'       => 'Die Änderungen sind jetzt auf der Website zu sehen.',

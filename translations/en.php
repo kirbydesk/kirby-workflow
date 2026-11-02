@@ -8,7 +8,7 @@ return [
 	'kirbydesk.workflow.confirm'         => 'Publish content',
 	'kirbydesk.workflow.confirm.text'    => 'All saved content will be published to the live website.',
 	'kirbydesk.workflow.confirm.unsaved' => 'Unsaved changes will not be published.',
-	'kirbydesk.workflow.running.text'    => 'This takes about a minute.',
+	'kirbydesk.workflow.running.text'    => 'The changes are being transferred to the live website. This may take a moment.',
 	'kirbydesk.workflow.hide'            => 'Hide',
 	'kirbydesk.workflow.done'            => 'Content published',
 	'kirbydesk.workflow.done.text'       => 'The changes are now live on the website.',

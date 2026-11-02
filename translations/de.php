@@ -11,7 +11,7 @@ return [
 	'kirbydesk.workflow.running.text'    => 'Das dauert etwa eine Minute.',
 	'kirbydesk.workflow.hide'            => 'Ausblenden',
 	'kirbydesk.workflow.done'            => 'Inhalte veröffentlicht',
-	'kirbydesk.workflow.done.text'       => 'Sie sind jetzt auf der Website zu sehen.',
+	'kirbydesk.workflow.done.text'       => 'Die Änderungen sind jetzt auf der Website zu sehen.',
 	'kirbydesk.workflow.error.headline'  => 'Veröffentlichen fehlgeschlagen',
 	'kirbydesk.workflow.error'           => 'Veröffentlichen fehlgeschlagen: {reason}',
 	'kirbydesk.workflow.error.unknown'   => 'Veröffentlichen fehlgeschlagen.',

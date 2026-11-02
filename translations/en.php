@@ -11,7 +11,7 @@ return [
 	'kirbydesk.workflow.running.text'    => 'This takes about a minute.',
 	'kirbydesk.workflow.hide'            => 'Hide',
 	'kirbydesk.workflow.done'            => 'Content published',
-	'kirbydesk.workflow.done.text'       => 'It is now live on the website.',
+	'kirbydesk.workflow.done.text'       => 'The changes are now live on the website.',
 	'kirbydesk.workflow.error.headline'  => 'Publishing failed',
 	'kirbydesk.workflow.error'           => 'Publishing failed: {reason}',
 	'kirbydesk.workflow.error.unknown'   => 'Publishing failed.',

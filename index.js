@@ -28,6 +28,10 @@ panel.plugin("kirbydesk/workflow", {
 		"k-workflow-commit-drawer": {
 			extends: "k-text-drawer",
 			props: { items: { type: Array, default: () => [] } },
+			// Kirby focuses the first button (the one at the top right) – nothing to type here, so no focus
+			mounted() {
+				setTimeout(() => document.activeElement?.blur(), 50);
+			},
 			computed: {
 				listItems() {
 					return changeItems(this, this.items);
@@ -78,7 +82,7 @@ panel.plugin("kirbydesk/workflow", {
 					return this.history.data.map((entry, index) => ({
 						id: index,
 						text: this.$helper.string.escapeHTML(entry.date),
-						info: this.$helper.string.escapeHTML(entry.by ?? ""),
+						info: this.$helper.string.escapeHTML([entry.by, entry.count ? this.$t(entry.count === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: entry.count }) : null].filter(Boolean).join(" · ")),
 						image: { icon: "clock", back: "black" },
 						// With changes: opens what this publish brought live
 						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,

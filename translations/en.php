@@ -31,4 +31,6 @@ return [
 	'kirbydesk.workflow.last'            => 'Last published',
 	'kirbydesk.workflow.connection'      => 'No connection to GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Check the GitHub App and the plugin settings.',
+	'kirbydesk.workflow.count.one'       => '1 change',
+	'kirbydesk.workflow.count'           => '{count} changes',
 ];

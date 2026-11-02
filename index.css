@@ -45,3 +45,11 @@
 	--button-color-text: var(--color-red-900);
 	outline: 1px solid light-dark(var(--color-red-400), var(--color-red-900));
 }
+
+/* Crumbs like the file list of kirby-explorer: links in the focus colour, underlined on hover, „›“ stays grey */
+.k-workflow-two-lines .k-item-info a {
+	color: var(--color-focus);
+}
+.k-workflow-two-lines .k-item-info a:hover {
+	text-decoration: underline;
+}

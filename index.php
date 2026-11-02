@@ -19,10 +19,11 @@ $extension = [
 		'settings' => null,
 		'cache'    => true,
 	],
-	'translations' => [
-		'en' => require __DIR__ . '/translations/en.php',
-		'de' => require __DIR__ . '/translations/de.php',
-	],
+	// Every file in `translations/` is a language – its name is the code (`de.php`, `fr.php` …)
+	'translations' => array_combine(
+		array_map(fn ($file) => basename($file, '.php'), $translations = glob(__DIR__ . '/translations/*.php')),
+		array_map(fn ($file) => require $file, $translations)
+	),
 ];
 
 // Without settings the plugin does nothing and leaves the Panel untouched: no menu entry, no view, no API.

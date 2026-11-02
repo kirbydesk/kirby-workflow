@@ -87,39 +87,16 @@ $extension['areas'] = [
 		],
 		'dialogs' => [
 			'workflow/publish' => [
-				'load' => function () use ($settings) {
-					$kirby     = Kirby::instance();
-					// Without „last published“ the question still works
-					try {
-						$published = (new Status($kirby, new GitHub($kirby, $settings())))->toArray()['published'];
-					} catch (Throwable) {
-						$published = null;
-					}
-					$text      = '<p><strong>' . I18n::translate('kirbydesk.workflow.confirm') . '</strong></p>' .
-						'<p>' . I18n::translate('kirbydesk.workflow.confirm.text') . '</p>';
-
-					if ($published !== null) {
-						$text .= '<p>' . I18n::template('kirbydesk.workflow.confirm.last', null, [
-							'date' => Status::date($published['at'], $kirby),
-							'name' => htmlspecialchars($published['by'] ?? ''),
-						]) . '</p>';
-					}
-
-					$text .= '<p>' . I18n::translate('kirbydesk.workflow.confirm.unsaved') . '</p>';
-
-					return [
-						'component' => 'k-text-dialog',
-						'props'     => [
-							'text'         => $text,
-							'size'         => 'medium',
-							'submitButton' => [
-								'icon'  => 'cloud-upload',
-								'text'  => I18n::translate('kirbydesk.workflow.publish'),
-								'theme' => 'positive',
-							],
-						],
-					];
-				},
+				// Like the activation question of kirby-explorer: small headline, the facts in a notice box
+				'load' => fn () => [
+					'component' => 'k-workflow-publish-dialog',
+					'props'     => [
+						'headline'     => I18n::translate('kirbydesk.workflow.confirm'),
+						'text'         => I18n::translate('kirbydesk.workflow.confirm.text') . ' ' . I18n::translate('kirbydesk.workflow.confirm.unsaved'),
+						'size'         => 'medium',
+						'submitButton' => I18n::translate('kirbydesk.workflow.publish'),
+					],
+				],
 				'submit' => function () use ($settings) {
 					$kirby  = Kirby::instance();
 					$github = new GitHub($kirby, $settings());

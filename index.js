@@ -24,6 +24,17 @@ panel.plugin("kirbydesk/workflow", {
 		"cloud-upload": '<path d="M12 12.586l4.243 4.242-1.415 1.415L13 16.415V22h-2v-5.587l-1.828 1.83-1.415-1.415L12 12.586zM12 2a7.001 7.001 0 0 1 6.954 6.194 5.5 5.5 0 0 1-.953 10.784v-2.014a3.5 3.5 0 1 0-1.112-6.91 5 5 0 1 0-9.777 0 3.5 3.5 0 0 0-1.292 6.88l.18.03v2.014a5.5 5.5 0 0 1-.954-10.784A7 7 0 0 1 12 2z"/>'
 	},
 	components: {
+		// The question before publishing – built like the activation question of kirby-explorer
+		"k-workflow-publish-dialog": {
+			extends: "k-text-dialog",
+			props: { headline: String },
+			template: `
+				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
+					<p class="k-workflow-dialog-headline">{{ headline }}</p>
+					<k-box theme="notice" :text="text" />
+				</k-dialog>
+			`
+		},
 		// What one publish brought live – same list as „Changes“
 		"k-workflow-commit-drawer": {
 			extends: "k-text-drawer",
@@ -220,7 +231,7 @@ panel.plugin("kirbydesk/workflow", {
 				<k-panel-inside class="k-workflow-view">
 					<k-header>
 						{{ $t("kirbydesk.workflow") }}
-						<template v-if="!connectionError" #buttons>
+						<template v-if="!connectionError && current === tabs[0]?.name" #buttons>
 							<k-button
 								:disabled="running || nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"

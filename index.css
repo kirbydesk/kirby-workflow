@@ -51,3 +51,10 @@
 	vertical-align: -3px;
 	margin-inline-end: var(--spacing-2);
 }
+
+/* Headline of the question before publishing – like kirby-explorer's activation question */
+.k-workflow-dialog-headline {
+	margin-bottom: var(--spacing-3);
+	font-size: var(--text-sm);
+	font-weight: var(--font-semi);
+}

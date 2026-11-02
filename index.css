@@ -48,7 +48,13 @@
 
 /* Crumbs like the file list of kirby-explorer: links in the focus colour, underlined on hover, „›“ stays grey */
 .k-workflow-two-lines .k-item-info a {
+	position: relative;
+	z-index: 1;
 	color: var(--color-focus);
+}
+/* Kirby stretches every link in an item over the whole row – only the title should, the crumbs go elsewhere */
+.k-workflow-two-lines .k-item-info a::after {
+	content: none;
 }
 .k-workflow-two-lines .k-item-info a:hover {
 	text-decoration: underline;

@@ -69,8 +69,9 @@ panel.plugin("kirbydesk/workflow", {
 				// Kirby's own buttons: after the question one plain button – „Hide“ while it runs (it goes on), „Close“ at
 				// the end. Only the icon and the box have colour. Own names – Kirby's dialogs already have `cancel`,
 				// `submit`, `close` (methods) and `icon` (prop)
+				// „Hide“ without Kirby's X – an X reads as „Cancel“, but publishing goes on
 				cancelOption() {
-					return { confirm: true, running: this.$t("kirbydesk.workflow.hide") }[this.state] ?? this.$t("close");
+					return { confirm: true, running: { text: this.$t("kirbydesk.workflow.hide"), icon: null } }[this.state] ?? this.$t("close");
 				},
 				submitOption() {
 					return this.state === "confirm" ? this.submitButton : false;
@@ -306,7 +307,8 @@ panel.plugin("kirbydesk/workflow", {
 				async poll() {
 					let status = null;
 					try {
-						status = (await this.$api.get("workflow/status")).data;
+						// Quietly (`silent`): no loading state – otherwise the Panel shows the busy cursor every few seconds
+						status = (await this.$api.get("workflow/status", null, null, true)).data;
 					} catch (e) {
 						status = null;
 					}

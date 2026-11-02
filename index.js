@@ -94,11 +94,11 @@ panel.plugin("kirbydesk/workflow", {
 							/>
 						</template>
 					</k-header>
-					<k-empty v-if="connection" icon="alert" class="k-workflow-connection">
+					<k-box v-if="connection" theme="negative" icon="alert" class="k-workflow-connection">
 						<strong>{{ $t("kirbydesk.workflow.connection") }}</strong>
 						<span>{{ connection }}</span>
 						<span>{{ $t("kirbydesk.workflow.connection.hint") }}</span>
-					</k-empty>
+					</k-box>
 					<k-tabs v-else :tab="tab" :tabs="tabs" theme="notice" />
 
 					<template v-if="connection" />

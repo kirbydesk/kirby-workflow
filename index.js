@@ -27,11 +27,7 @@ panel.plugin("kirbydesk/workflow", {
 		// What one publish brought live – same list as „Changes“
 		"k-workflow-commit-drawer": {
 			extends: "k-text-drawer",
-			props: {
-				items: { type: Array, default: () => [] },
-				date: String,
-				by: String
-			},
+			props: { items: { type: Array, default: () => [] } },
 			// Kirby focuses the first button (the one at the top right) – nothing to type here, so no focus
 			mounted() {
 				setTimeout(() => document.activeElement?.blur(), 50);
@@ -40,10 +36,8 @@ panel.plugin("kirbydesk/workflow", {
 				listItems() {
 					return changeItems(this, this.items);
 				},
-				// „96 Änderungen am 27. Oktober 2026 um 11:04 von chrfickinger“
 				count() {
-					const key = "kirbydesk.workflow.published." + (this.items.length === 1 ? "one" : "many") + (this.by ? ".by" : "");
-					return this.$t(key, { count: this.items.length, date: this.date, name: this.by });
+					return this.$t(this.items.length === 1 ? "kirbydesk.workflow.count.one" : "kirbydesk.workflow.count", { count: this.items.length });
 				}
 			},
 			template: `
@@ -97,7 +91,7 @@ panel.plugin("kirbydesk/workflow", {
 						info: this.$helper.string.escapeHTML(entry.by ?? ""),
 						image: { icon: "clock", back: "black" },
 						// With changes: opens what this publish brought live
-						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { date: entry.date, by: entry.by ?? "" } }) : false,
+						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,
 						buttons: entry.failed ? [this.badge(entry.reason
 							? this.$t("kirbydesk.workflow.failed.reason", { reason: entry.reason })
 							: this.$t("kirbydesk.workflow.failed"), "negative")] : []

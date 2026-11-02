@@ -30,14 +30,88 @@ panel.plugin("kirbydesk/workflow", {
 		"cloud-upload": '<path d="M12 12.586l4.243 4.242-1.415 1.415L13 16.415V22h-2v-5.587l-1.828 1.83-1.415-1.415L12 12.586zM12 2a7.001 7.001 0 0 1 6.954 6.194 5.5 5.5 0 0 1-.953 10.784v-2.014a3.5 3.5 0 1 0-1.112-6.91 5 5 0 1 0-9.777 0 3.5 3.5 0 0 0-1.292 6.88l.18.03v2.014a5.5 5.5 0 0 1-.954-10.784A7 7 0 0 1 12 2z"/>'
 	},
 	components: {
-		// The question before publishing – built like the activation question of kirby-explorer
+		// The question before publishing – built like the activation question of kirby-explorer. After „Publish“ it
+		// stays open: first while publishing runs, then with the result. The view watches the run and reports the
+		// end (`workflow.finished`); closed early, the view reports it itself
 		"k-workflow-publish-dialog": {
 			extends: "k-text-dialog",
 			props: { headline: String },
+			data() {
+				// confirm → running → done | failed
+				return { state: "confirm", reason: null };
+			},
+			computed: {
+				title() {
+					return {
+						confirm: this.headline,
+						running: this.$t("kirbydesk.workflow.running"),
+						done: this.$t("kirbydesk.workflow.done"),
+						failed: this.$t("kirbydesk.workflow.error.headline")
+					}[this.state];
+				},
+				icon() {
+					return { running: "loader", done: "check", failed: "alert" }[this.state] ?? null;
+				},
+				box() {
+					return {
+						confirm: { theme: "notice", text: this.text },
+						running: { theme: "info", text: this.$t("kirbydesk.workflow.running.text") },
+						done: { theme: "positive", text: this.$t("kirbydesk.workflow.done.text") },
+						// GitHub's reason – without one the headline says it all
+						failed: this.reason ? { theme: "negative", text: this.reason } : null
+					}[this.state];
+				},
+				// Kirby's own buttons: while it runs only „Close“, at the end only „OK“
+				cancel() {
+					return { confirm: true, running: this.$t("close") }[this.state] ?? false;
+				},
+				submit() {
+					if (this.state === "confirm") return this.submitButton;
+					if (this.state === "running") return false;
+					return { text: this.$t("confirm"), icon: "check", theme: this.state === "done" ? "positive" : "negative" };
+				}
+			},
+			created() {
+				this.$panel.events.on("workflow.finished", this.finished);
+			},
+			destroyed() {
+				this.$panel.events.off("workflow.finished", this.finished);
+			},
+			methods: {
+				async start() {
+					this.state = "running";
+					let result;
+					try {
+						result = await this.$api.post("workflow/publish");
+					} catch (e) {
+						result = { error: e.message };
+					}
+					if (result.error) {
+						this.state = "failed";
+						this.reason = result.error;
+						return;
+					}
+					this.$panel.events.emit("workflow.started", { watched: true });
+				},
+				finished(status) {
+					this.state = status.failed ? "failed" : "done";
+					this.reason = status.failed?.message ?? null;
+				},
+				onSubmit() {
+					if (this.state === "confirm") this.start();
+					else if (this.state !== "running") this.close();
+				},
+				// Closed while it runs: the view reports the end. Closed after the result: now the lists update
+				close() {
+					if (this.state === "running") this.$panel.events.emit("workflow.unwatched");
+					if (this.state === "done" || this.state === "failed") this.$panel.events.emit("workflow.acknowledged");
+					this.$emit("cancel");
+				}
+			},
 			template: `
-				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
-					<p class="k-workflow-dialog-headline">{{ headline }}</p>
-					<k-box theme="notice" :text="text" />
+				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" :cancel-button="cancel" :submit-button="submit" @cancel="close" @submit="onSubmit">
+					<p class="k-workflow-dialog-headline"><k-icon v-if="icon" :type="icon" />{{ title }}</p>
+					<k-box v-if="box" :theme="box.theme" :text="box.text" />
 				</k-dialog>
 			`
 		},
@@ -98,6 +172,8 @@ panel.plugin("kirbydesk/workflow", {
 					history: null,
 					github: null,
 					running: false,
+					// The dialog is open and shows the end itself
+					watched: false,
 					timer: null
 				};
 			},
@@ -184,15 +260,21 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
+				this.$panel.events.on("workflow.unwatched", this.unwatched);
+				this.$panel.events.on("workflow.acknowledged", this.load);
 				this.load();
 			},
 			destroyed() {
 				this.$panel.events.off("workflow.started", this.started);
+				this.$panel.events.off("workflow.unwatched", this.unwatched);
+				this.$panel.events.off("workflow.acknowledged", this.load);
 				clearTimeout(this.timer);
 			},
 			methods: {
-				// All at once in the background – each tab fills as soon as its part arrives
+				// All at once in the background – each tab fills as soon as its part arrives. Again after publishing:
+				// the shown tab turns into the spinner until its part is there
 				async load() {
+					this.changes = this.history = this.github = null;
 					const get = async (part) => {
 						try {
 							return await this.$api.get("workflow/" + part);
@@ -214,17 +296,25 @@ panel.plugin("kirbydesk/workflow", {
 				},
 				// Only while publishing runs: is it done? Then say so and show the new state
 				async poll() {
-					let status;
+					let status = null;
 					try {
 						status = (await this.$api.get("workflow/status")).data;
 					} catch (e) {
+						status = null;
+					}
+					// No answer (GitHub or the server not reachable for a moment): while it runs, ask again later
+					if (!status) {
+						clearTimeout(this.timer);
+						if (this.running) this.timer = setTimeout(this.poll, 5000);
 						return;
 					}
-					// No answer from GitHub – like a failed request: stop asking
-					if (!status) return;
 					const wasRunning = this.running;
 					this.running = Boolean(status.running);
-					if (wasRunning && !this.running) {
+					if (wasRunning && !this.running && this.watched) {
+						// The dialog shows the result – the lists update when it is closed
+						this.watched = false;
+						this.$panel.events.emit("workflow.finished", status);
+					} else if (wasRunning && !this.running) {
 						if (status.failed) {
 							const reason = status.failed.message;
 							this.$panel.notification.error(reason
@@ -238,10 +328,14 @@ panel.plugin("kirbydesk/workflow", {
 					clearTimeout(this.timer);
 					if (this.running) this.timer = setTimeout(this.poll, 5000);
 				},
-				started() {
+				started(event) {
 					this.running = true;
+					this.watched = Boolean(event?.watched);
 					clearTimeout(this.timer);
 					this.timer = setTimeout(this.poll, 3000);
+				},
+				unwatched() {
+					this.watched = false;
 				},
 				publish() {
 					this.$panel.dialog.open("workflow/publish");

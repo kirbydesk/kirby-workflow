@@ -74,8 +74,9 @@ $extension['areas'] = [
 			],
 		],
 		'dialogs' => [
+			// Like the activation question of kirby-explorer: small headline, the facts in a notice box. The dialog
+			// stays open while publishing runs and shows the result – it starts the run itself (API `workflow/publish`)
 			'workflow/publish' => [
-				// Like the activation question of kirby-explorer: small headline, the facts in a notice box
 				'load' => fn () => [
 					'component' => 'k-workflow-publish-dialog',
 					'props'     => [
@@ -85,15 +86,6 @@ $extension['areas'] = [
 						'submitButton' => I18n::translate('kirbydesk.workflow.publish'),
 					],
 				],
-				'submit' => function () use ($settings) {
-					$kirby  = Kirby::instance();
-					$github = new GitHub($kirby, $settings());
-					$user   = $kirby->user();
-					$github->dispatch($user?->name()->isNotEmpty() ? $user->name()->value() : $user?->email());
-					(new Status($kirby, $github))->markDispatched();
-
-					return ['event' => 'workflow.started'];
-				},
 			],
 		],
 	],
@@ -108,9 +100,9 @@ $part = function (callable $load): array {
 	}
 };
 
-$route = fn (string $pattern, callable $load) => [
+$route = fn (string $pattern, callable $load, string $method = 'GET') => [
 	'pattern' => 'workflow/' . $pattern,
-	'method'  => 'GET',
+	'method'  => $method,
 	'action'  => function (...$arguments) use ($settings, $load, $part) {
 		$kirby    = Kirby::instance();
 		$settings = $settings();
@@ -139,6 +131,13 @@ $extension['api'] = [
 		// What one publish brought live
 		$route('commit/(:any)', fn ($kirby, $settings, $github, $sha) => (new Changes($kirby, $github, $settings))->fromCommit($sha)),
 		$route('status', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->toArray()),
+		// Starts publishing – with the name of the Panel account (or its email) for the history
+		$route('publish', function ($kirby, $settings, $github) {
+			$user = $kirby->user();
+			$github->dispatch($user?->name()->isNotEmpty() ? $user->name()->value() : $user?->email());
+			(new Status($kirby, $github))->markDispatched();
+			return true;
+		}, 'POST'),
 	],
 ];
 

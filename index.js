@@ -10,21 +10,32 @@ panel.plugin("kirbydesk/workflow", {
 	components: {
 		"k-workflow-view": {
 			props: {
-				// GitHub's answer when there is no connection – then only this message, no tabs, no button
-				connection: String,
+				// Requested tab (`?tab=`), otherwise the first
 				tab: String,
-				changes: Object,
-				history: Object,
-				github: Object
+				// Is a content repository set up? Then there is a tab „Changes“
+				hasChanges: Boolean
 			},
+			// Everything from GitHub loads after the page shows: `null` = still loading, then { data, error }
 			data() {
-				return { running: false, timer: null };
+				return {
+					selected: this.tab,
+					connection: null,
+					changes: null,
+					history: null,
+					github: null,
+					running: false,
+					timer: null
+				};
 			},
 			computed: {
 				// Known to be nothing new: greyed out like Kirby's Save without changes. Without a comparison (no content
 				// repository, or it failed) the button stays – the plugin can't tell
 				nothingToPublish() {
 					return Boolean(this.changes?.data) && this.changes.data.length === 0;
+				},
+				// GitHub's answer when there is no connection – then only this message, no tabs, no button
+				connectionError() {
+					return this.connection?.error ?? null;
 				},
 				// Kirby's list items: title, info on the right, buttons for the state – no own styles
 				changeItems() {
@@ -71,32 +82,52 @@ panel.plugin("kirbydesk/workflow", {
 				},
 				// The requested tab – or the first one, if it is hidden (no history yet)
 				current() {
-					return this.tabs.find((tab) => tab.name === this.tab)?.name ?? this.tabs[0]?.name;
+					return this.tabs.find((tab) => tab.name === this.selected)?.name ?? this.tabs[0]?.name;
 				},
+				// Switching tabs only shows what is already loaded – no new page
 				tabs() {
-					const link = (name) => "/workflow?tab=" + name;
+					const tab = (name, label, icon, badge = null) => ({ name, label, icon, badge, click: () => this.select(name) });
 					const tabs = [];
-					if (this.changes) {
-						const count = this.changes.data?.length;
-						tabs.push({ name: "changes", label: this.$t("kirbydesk.workflow.changes"), icon: "edit", link: link("changes"), badge: count || null });
+					if (this.hasChanges) {
+						tabs.push(tab("changes", this.$t("kirbydesk.workflow.changes"), "edit", this.changes?.data?.length || null));
 					}
-					// Before the first publish there is no history – no tab
-					if (this.history?.error || this.history?.data?.length) {
-						tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), icon: "clock", link: link("history") });
+					// Before the first publish there is no history – no tab (while loading it stays, to not jump)
+					if (this.history === null || this.history.error || this.history.data?.length) {
+						tabs.push(tab("history", this.$t("kirbydesk.workflow.history"), "clock"));
 					}
-					tabs.push({ name: "github", label: "GitHub", icon: "github", link: link("github") });
+					tabs.push(tab("github", "GitHub", "github"));
 					return tabs;
 				}
 			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
-				if (!this.connection) await this.poll();
+				this.load();
 			},
 			destroyed() {
 				this.$panel.events.off("workflow.started", this.started);
 				clearTimeout(this.timer);
 			},
 			methods: {
+				// All at once in the background – each tab fills as soon as its part arrives
+				async load() {
+					const get = async (part) => {
+						try {
+							return await this.$api.get("workflow/" + part);
+						} catch (e) {
+							return { data: null, error: e.message };
+						}
+					};
+					this.connection = await get("connection");
+					if (this.connectionError) return;
+					const parts = ["history", "github"].concat(this.hasChanges ? ["changes"] : []);
+					parts.forEach(async (part) => (this[part] = await get(part)));
+					this.poll();
+				},
+				select(name) {
+					this.selected = name;
+					// Keep the tab in the address, without a new page
+					window.history.replaceState(window.history.state, "", "?tab=" + name);
+				},
 				// Only while publishing runs: is it done? Then say so and show the new state
 				async poll() {
 					let status;
@@ -116,7 +147,7 @@ panel.plugin("kirbydesk/workflow", {
 						} else {
 							this.$panel.notification.success(this.$t("kirbydesk.workflow.done"));
 						}
-						this.$panel.view.reload();
+						this.load();
 					}
 					clearTimeout(this.timer);
 					if (this.running) this.timer = setTimeout(this.poll, 5000);
@@ -154,7 +185,7 @@ panel.plugin("kirbydesk/workflow", {
 				<k-panel-inside class="k-workflow-view">
 					<k-header>
 						{{ $t("kirbydesk.workflow") }}
-						<template v-if="!connection" #buttons>
+						<template v-if="!connectionError" #buttons>
 							<k-button
 								:disabled="running || nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"
@@ -167,29 +198,32 @@ panel.plugin("kirbydesk/workflow", {
 						</template>
 					</k-header>
 					<!-- Like Kirby's own errors (e.g. a section that could not be loaded): bold start, then the error -->
-					<k-box v-if="connection" theme="negative" icon="alert">
+					<k-box v-if="connectionError" theme="negative" icon="alert">
 						<k-text size="small">
 							<strong>{{ $t("kirbydesk.workflow.connection") }}:</strong>
-							{{ connection.replace(/^GitHub: /, "") }}. {{ $t("kirbydesk.workflow.connection.hint") }}
+							{{ connectionError.replace(/^GitHub: /, "") }}. {{ $t("kirbydesk.workflow.connection.hint") }}
 						</k-text>
 					</k-box>
 					<k-tabs v-else :tab="current" :tabs="tabs" theme="notice" />
 
-					<template v-if="connection" />
+					<template v-if="connectionError" />
 
-					<template v-else-if="current === 'changes' && changes">
-						<k-box v-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
+					<template v-else-if="current === 'changes'">
+						<k-empty v-if="!changes" icon="loader" />
+						<k-box v-else-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
 						<k-items v-else :items="changeItems" layout="list" />
 					</template>
 
-					<template v-else-if="current === 'history' && history">
-						<k-box v-if="history.error" theme="negative" icon="alert" :text="history.error" />
+					<template v-else-if="current === 'history'">
+						<k-empty v-if="!history" icon="loader" />
+						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
 						<k-items v-else :items="historyItems" layout="list" />
 					</template>
 
-					<template v-else-if="current === 'github' && github">
-						<k-box v-if="github.error" theme="negative" icon="alert" :text="github.error" />
+					<template v-else-if="current === 'github'">
+						<k-empty v-if="!github" icon="loader" />
+						<k-box v-else-if="github.error" theme="negative" icon="alert" :text="github.error" />
 						<template v-else>
 							<k-section v-if="github.data.content" :label="$t('kirbydesk.workflow.content')">
 								<k-items :items="contentItems" layout="list" />

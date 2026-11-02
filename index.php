@@ -53,40 +53,14 @@ $extension['areas'] = [
 				'action'  => function () use ($settings) {
 					$kirby    = Kirby::instance();
 					$settings = $settings();
-					$github   = new GitHub($kirby, $settings);
-					$status   = new Status($kirby, $github);
-					$tab      = $kirby->request()->get('tab', $settings->contentRepository !== null ? 'changes' : 'history');
 
-					// Without a connection every tab would be empty – one clear message instead (GitHub's own answer)
-					try {
-						$github->permissions();
-					} catch (Throwable $e) {
-						return [
-							'component' => 'k-workflow-view',
-							'title'     => I18n::translate('kirbydesk.workflow'),
-							'props'     => ['connection' => $e->getMessage()],
-						];
-					}
-
-					// Each part on its own – one failing (e.g. a missing permission) must not hide the others
-					$try = function (callable $load) {
-						try {
-							return ['data' => $load(), 'error' => null];
-						} catch (Throwable $e) {
-							return ['data' => null, 'error' => $e->getMessage()];
-						}
-					};
-
+					// Right away – everything from GitHub loads afterwards (API routes below), so the page shows at once
 					return [
 						'component' => 'k-workflow-view',
 						'title'     => I18n::translate('kirbydesk.workflow'),
 						'props'     => [
-							'tab'     => $tab,
-							// Changes always – their number is on the tab
-							'changes' => $settings->contentRepository !== null ? $try(fn () => (new Changes($kirby, $github, $settings))->toArray()) : null,
-							// Always – without any publish yet the tab is hidden
-							'history' => $try(fn () => $status->history()),
-							'github'  => $try(fn () => $status->github($settings)),
+							'tab'        => $kirby->request()->get('tab'),
+							'hasChanges' => $settings->contentRepository !== null,
 						],
 					];
 				},
@@ -141,8 +115,33 @@ $extension['areas'] = [
 	],
 ];
 
+// Each part on its own – one failing (e.g. a missing permission) must not hide the others
+$part = function (callable $load): array {
+	try {
+		return ['data' => $load(), 'error' => null];
+	} catch (Throwable $e) {
+		return ['data' => null, 'error' => $e->getMessage()];
+	}
+};
+
+$route = fn (string $pattern, callable $load) => [
+	'pattern' => 'workflow/' . $pattern,
+	'method'  => 'GET',
+	'action'  => function () use ($settings, $load, $part) {
+		$kirby    = Kirby::instance();
+		$settings = $settings();
+		$github   = new GitHub($kirby, $settings);
+		return $part(fn () => $load($kirby, $settings, $github));
+	},
+];
+
 $extension['api'] = [
 	'routes' => [
+		// Without a connection every tab would be empty – the view then shows one message (GitHub's own answer)
+		$route('connection', fn ($kirby, $settings, $github) => $github->permissions() !== null),
+		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
+		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history()),
+		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
 		[
 			'pattern' => 'workflow/status',
 			'method'  => 'GET',

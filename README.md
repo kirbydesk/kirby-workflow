@@ -76,6 +76,10 @@ return [
 
 [KirbyDesk](https://kirbydesk.com) sets all of this up for you.
 
+## Languages
+
+The Panel texts come in all languages of the Kirby Panel. They were translated carefully, but mostly not by native speakers – corrections are welcome.
+
 ## License
 
 MIT

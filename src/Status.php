@@ -69,9 +69,19 @@ class Status
 			'failed'    => $running === null && $failed !== null ? [
 				'at'      => $failed['updated_at'],
 				'id'      => $failed['id'],
-				'message' => $this->github->failureMessage($failed['id']),
+				'message' => $this->failureMessage($failed['id']),
 			] : null,
 		];
+	}
+
+	/** The reason is extra – without it („Failed“ alone) the status still shows */
+	protected function failureMessage(int $runId): string|null
+	{
+		try {
+			return $this->github->failureMessage($runId);
+		} catch (\Throwable) {
+			return null;
+		}
 	}
 
 	/** Date and time in the language of the Panel account („30. Oktober 2026, 14:12“) */

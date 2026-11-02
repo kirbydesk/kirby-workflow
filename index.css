@@ -1,21 +1,47 @@
-.k-workflow-box {
-	background: var(--item-color-back, var(--color-white));
+.k-workflow-view .k-tabs {
+	margin-bottom: var(--spacing-6);
+}
+.k-workflow-list {
+	background: var(--item-color-back, light-dark(var(--color-white), var(--color-gray-850)));
 	border-radius: var(--rounded);
 	box-shadow: var(--shadow);
-	padding: var(--spacing-6);
-	max-width: 40rem;
 }
-.k-workflow-intro {
-	margin-bottom: var(--spacing-4);
-}
-.k-workflow-rows > div {
+.k-workflow-list > li {
 	display: flex;
+	align-items: baseline;
 	gap: var(--spacing-4);
-	padding: var(--spacing-2) 0;
-	border-top: 1px solid var(--color-border);
+	padding: var(--spacing-2) var(--spacing-3);
 }
-.k-workflow-rows dt {
-	width: 12rem;
-	flex-shrink: 0;
+.k-workflow-list > li + li {
+	border-top: 1px solid var(--panel-color-back);
+}
+.k-workflow-list > li > :last-child {
+	margin-inline-start: auto;
+	text-align: end;
+}
+.k-workflow-list strong {
+	font-weight: var(--font-normal);
+}
+.k-workflow-main {
+	display: flex;
+	flex-direction: column;
+}
+.k-workflow-main > :not(strong),
+.k-workflow-list > li > span:last-child {
 	color: var(--color-text-dimmed);
+	font-size: var(--text-sm);
+}
+.k-workflow-list a {
+	color: var(--link-color, var(--color-blue-700));
+}
+.k-workflow-list .k-workflow-failed {
+	color: var(--color-negative);
+}
+.k-workflow-heading {
+	font-size: var(--text-sm);
+	font-weight: var(--font-semi);
+	margin: var(--spacing-6) 0 var(--spacing-2);
+}
+.k-workflow-heading:first-child {
+	margin-top: 0;
 }

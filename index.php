@@ -1,6 +1,7 @@
 <?php
 
 use Kirby\Cms\App as Kirby;
+use Kirbydesk\Workflow\Changes;
 use Kirbydesk\Workflow\GitHub;
 use Kirbydesk\Workflow\Settings;
 use Kirbydesk\Workflow\Status;
@@ -8,6 +9,7 @@ use Kirby\Exception\NotFoundException;
 use Kirby\Toolkit\I18n;
 
 load([
+	'Kirbydesk\\Workflow\\Changes'  => __DIR__ . '/src/Changes.php',
 	'Kirbydesk\\Workflow\\GitHub'   => __DIR__ . '/src/GitHub.php',
 	'Kirbydesk\\Workflow\\Settings' => __DIR__ . '/src/Settings.php',
 	'Kirbydesk\\Workflow\\Status'   => __DIR__ . '/src/Status.php',
@@ -49,11 +51,31 @@ $extension['areas'] = [
 			[
 				'pattern' => 'workflow',
 				'action'  => function () use ($settings) {
-					$settings();
+					$kirby    = Kirby::instance();
+					$settings = $settings();
+					$github   = new GitHub($kirby, $settings);
+					$status   = new Status($kirby, $github);
+					$tab      = $kirby->request()->get('tab', $settings->contentRepository !== null ? 'changes' : 'history');
+
+					// Each part on its own – one failing (e.g. a missing permission) must not hide the others
+					$try = function (callable $load) {
+						try {
+							return ['data' => $load(), 'error' => null];
+						} catch (Throwable $e) {
+							return ['data' => null, 'error' => $e->getMessage()];
+						}
+					};
 
 					return [
 						'component' => 'k-workflow-view',
 						'title'     => I18n::translate('kirbydesk.workflow'),
+						'props'     => [
+							'tab'     => $tab,
+							// Changes always – their number is on the tab
+							'changes' => $settings->contentRepository !== null ? $try(fn () => (new Changes($kirby, $github, $settings))->toArray()) : null,
+							'history' => $tab === 'history' ? $try(fn () => $status->history()) : null,
+							'github'  => $tab === 'github' ? $try(fn () => $status->github($settings)) : null,
+						],
 					];
 				},
 			],
@@ -62,7 +84,12 @@ $extension['areas'] = [
 			'workflow/publish' => [
 				'load' => function () use ($settings) {
 					$kirby     = Kirby::instance();
-					$published = (new Status($kirby, new GitHub($kirby, $settings())))->toArray()['published'];
+					// Without „last published“ the question still works
+					try {
+						$published = (new Status($kirby, new GitHub($kirby, $settings())))->toArray()['published'];
+					} catch (Throwable) {
+						$published = null;
+					}
 					$text      = '<p><strong>' . I18n::translate('kirbydesk.workflow.confirm') . '</strong></p>' .
 						'<p>' . I18n::translate('kirbydesk.workflow.confirm.text') . '</p>';
 

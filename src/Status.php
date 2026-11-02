@@ -74,6 +74,64 @@ class Status
 		];
 	}
 
+	/** Every publish (newest first): date, person and – if it failed – the reason */
+	public function history(int $limit = 20): array
+	{
+		$entries = [];
+
+		foreach ($this->github->runs($limit) as $run) {
+			if (in_array($run['status'], static::RUNNING, true) === true || $run['conclusion'] === 'cancelled') {
+				continue;
+			}
+
+			$failed    = $run['conclusion'] !== 'success';
+			$entries[] = [
+				'date'   => static::date($run['updated_at'], $this->kirby),
+				'by'     => static::person($run),
+				'failed' => $failed,
+				'reason' => $failed ? $this->failureMessage($run['id']) : null,
+			];
+		}
+
+		return $entries;
+	}
+
+	/** Tab „GitHub“: repositories, permissions, last publish of the code */
+	public function github(Settings $settings): array
+	{
+		$permissions = $this->github->permissions();
+		$content     = null;
+		$code        = ['repository' => $settings->repository, 'last' => null];
+
+		if ($settings->contentRepository !== null) {
+			$content = [
+				'repository' => $settings->contentRepository,
+				'compare'    => $this->github->canRead($settings->contentRepository),
+			];
+		}
+
+		if ($settings->codeWorkflow !== null) {
+			foreach ($this->github->runsOf($settings->codeWorkflow) as $run) {
+				if ($run['status'] !== 'completed' || $run['conclusion'] === 'cancelled') {
+					continue;
+				}
+
+				$code['last'] = [
+					'date'   => static::date($run['updated_at'], $this->kirby),
+					'by'     => $run['triggering_actor']['login'] ?? $run['actor']['login'] ?? null,
+					'failed' => $run['conclusion'] !== 'success',
+				];
+				break;
+			}
+		}
+
+		return [
+			'content' => $content,
+			'publish' => ($permissions['actions'] ?? null) === 'write',
+			'code'    => $code,
+		];
+	}
+
 	/** The reason is extra – without it („Failed“ alone) the status still shows */
 	protected function failureMessage(int $runId): string|null
 	{

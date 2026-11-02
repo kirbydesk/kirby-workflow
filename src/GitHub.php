@@ -34,11 +34,50 @@ class GitHub
 		]);
 	}
 
-	/** Latest runs started by hand (newest first) */
+	/** Latest runs of the publishing workflow started by hand (newest first) */
 	public function runs(int $limit = 20): array
 	{
 		$data = $this->request('GET', $this->workflowPath() . '/runs?event=workflow_dispatch&per_page=' . $limit);
 		return $data['workflow_runs'] ?? [];
+	}
+
+	/** Latest runs of any workflow in the repository of the settings (newest first) */
+	public function runsOf(string $workflow, int $limit = 5): array
+	{
+		$data = $this->request('GET', '/repos/' . $this->settings->repository . '/actions/workflows/' . rawurlencode($workflow) . '/runs?per_page=' . $limit);
+		return $data['workflow_runs'] ?? [];
+	}
+
+	/** All files of a repository at a branch: path => blob SHA */
+	public function tree(string $repository, string $ref): array
+	{
+		$data  = $this->request('GET', '/repos/' . $repository . '/git/trees/' . rawurlencode($ref) . '?recursive=1');
+		$files = [];
+
+		foreach ($data['tree'] ?? [] as $item) {
+			if ($item['type'] === 'blob') {
+				$files[$item['path']] = $item['sha'];
+			}
+		}
+
+		return $files;
+	}
+
+	/** Can the App read this repository? */
+	public function canRead(string $repository): bool
+	{
+		try {
+			$this->request('GET', '/repos/' . $repository);
+			return true;
+		} catch (Exception) {
+			return false;
+		}
+	}
+
+	/** Permissions of the App's installation (`actions` => `write`, `contents` => `read` …) */
+	public function permissions(): array
+	{
+		return $this->access()['permissions'];
 	}
 
 	/** First error message of a failed run (`::error::` annotations), if there is one */
@@ -89,24 +128,30 @@ class GitHub
 		return $response->json() ?? [];
 	}
 
-	/** Installation token of the App – cached until shortly before it expires */
 	protected function token(): string
 	{
-		$cache = $this->kirby->cache('kirbydesk.workflow');
-		$key   = 'token-' . md5($this->settings->repository . $this->settings->appId);
+		return $this->access()['token'];
+	}
 
-		if ($token = $cache->get($key)) {
-			return $token;
+	/** Installation token of the App and its permissions – cached until shortly before the token expires */
+	protected function access(): array
+	{
+		$cache = $this->kirby->cache('kirbydesk.workflow');
+		$key   = 'access-' . md5($this->settings->repository . $this->settings->appId);
+
+		if ($access = $cache->get($key)) {
+			return $access;
 		}
 
 		$jwt          = $this->jwt();
 		$installation = static::call('GET', '/repos/' . $this->settings->repository . '/installation', $jwt);
-		$access       = static::call('POST', '/app/installations/' . $installation['id'] . '/access_tokens', $jwt);
+		$response     = static::call('POST', '/app/installations/' . $installation['id'] . '/access_tokens', $jwt);
+		$access       = ['token' => $response['token'], 'permissions' => $response['permissions'] ?? []];
 
 		// Valid for an hour – keep it for 50 minutes
-		$cache->set($key, $access['token'], 50);
+		$cache->set($key, $access, 50);
 
-		return $access['token'];
+		return $access;
 	}
 
 	/** Signed with the App's key – valid for nine minutes, a minute back against clock drift */

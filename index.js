@@ -1,4 +1,4 @@
-// Panel side of kirby-workflow: the view „Workflow“ with the section „Publish“.
+// Panel side of kirby-workflow: the view „Workflow“ with the tabs Changes, History and GitHub.
 // The confirmation is a Kirby text dialog built on the server (index.php).
 panel.plugin("kirbydesk/workflow", {
 	icons: {
@@ -9,66 +9,71 @@ panel.plugin("kirbydesk/workflow", {
 	},
 	components: {
 		"k-workflow-view": {
+			props: {
+				tab: String,
+				changes: Object,
+				history: Object,
+				github: Object
+			},
 			data() {
-				return { status: null, error: null, timer: null };
+				return { running: false, timer: null };
 			},
 			computed: {
-				running() {
-					return this.status?.running ?? null;
-				},
-				lastPublished() {
-					const published = this.status?.published;
-					if (!published) return this.$t("kirbydesk.workflow.never");
-					if (!published.by) return published.date;
-					return this.$t("kirbydesk.workflow.last.by", { date: published.date, name: published.by });
-				},
-				state() {
-					if (this.running) return this.$t("kirbydesk.workflow.running.since", { time: this.running.time });
-					if (this.status?.failed) {
-						const reason = this.status.failed.message;
-						return this.$t("kirbydesk.workflow.failed") + (reason ? " – " + reason : "");
+				tabs() {
+					const link = (name) => "/workflow?tab=" + name;
+					const tabs = [];
+					if (this.changes) {
+						const count = this.changes.data?.length;
+						tabs.push({ name: "changes", label: this.$t("kirbydesk.workflow.changes"), link: link("changes"), badge: count || null });
 					}
-					return this.$t("kirbydesk.workflow.ready");
+					tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), link: link("history") });
+					tabs.push({ name: "github", label: "GitHub", link: link("github") });
+					return tabs;
 				}
 			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
-				await this.load();
+				await this.poll();
 			},
 			destroyed() {
 				this.$panel.events.off("workflow.started", this.started);
 				clearTimeout(this.timer);
 			},
 			methods: {
-				async load() {
-					const wasRunning = Boolean(this.running);
+				// Only while publishing runs: is it done? Then say so and show the new state
+				async poll() {
+					let status;
 					try {
-						this.status = await this.$api.get("workflow/status");
-						this.error = null;
+						status = await this.$api.get("workflow/status");
 					} catch (e) {
-						this.error = e.message;
+						return;
 					}
-					// Finished while the page was open: say so
-					if (wasRunning && !this.running && this.status) {
-						if (this.status.failed) {
-							const reason = this.status.failed.message;
+					const wasRunning = this.running;
+					this.running = Boolean(status.running);
+					if (wasRunning && !this.running) {
+						if (status.failed) {
+							const reason = status.failed.message;
 							this.$panel.notification.error(reason
 								? this.$t("kirbydesk.workflow.error", { reason })
 								: this.$t("kirbydesk.workflow.error.unknown"));
 						} else {
 							this.$panel.notification.success(this.$t("kirbydesk.workflow.done"));
 						}
+						this.$panel.view.reload();
 					}
 					clearTimeout(this.timer);
-					if (this.running) this.timer = setTimeout(this.load, 5000);
+					if (this.running) this.timer = setTimeout(this.poll, 5000);
 				},
 				started() {
-					this.status = { ...(this.status ?? {}), running: { time: new Date().toTimeString().slice(0, 5) }, failed: null };
+					this.running = true;
 					clearTimeout(this.timer);
-					this.timer = setTimeout(this.load, 3000);
+					this.timer = setTimeout(this.poll, 3000);
 				},
 				publish() {
 					this.$panel.dialog.open("workflow/publish");
+				},
+				statusTheme(status) {
+					return { changed: "notice", new: "positive", deleted: "negative" }[status];
 				}
 			},
 			template: `
@@ -77,7 +82,7 @@ panel.plugin("kirbydesk/workflow", {
 						{{ $t("kirbydesk.workflow") }}
 						<template #buttons>
 							<k-button
-								:disabled="!status || Boolean(running)"
+								:disabled="running"
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
 								variant="filled"
@@ -87,15 +92,62 @@ panel.plugin("kirbydesk/workflow", {
 							/>
 						</template>
 					</k-header>
-					<k-section :label="$t('kirbydesk.workflow.publish')">
-						<div class="k-workflow-box">
-							<p class="k-workflow-intro">{{ $t("kirbydesk.workflow.publish.intro") }}</p>
-							<dl class="k-workflow-rows">
-								<div><dt>{{ $t("kirbydesk.workflow.last") }}</dt><dd>{{ status ? lastPublished : "…" }}</dd></div>
-								<div><dt>{{ $t("kirbydesk.workflow.status") }}</dt><dd>{{ error ?? (status ? state : "…") }}</dd></div>
-							</dl>
-						</div>
-					</k-section>
+					<k-tabs :tab="tab" :tabs="tabs" theme="notice" />
+
+					<template v-if="tab === 'changes' && changes">
+						<k-box v-if="changes.error" theme="negative" :text="changes.error" />
+						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
+						<ul v-else class="k-workflow-list">
+							<li v-for="item in changes.data" :key="item.type + item.path + item.title">
+								<div class="k-workflow-main">
+									<strong>{{ item.title }}</strong>
+									<a v-if="item.url" :href="item.url" target="_blank">{{ item.path }}</a>
+									<span v-else>{{ item.path }}</span>
+								</div>
+								<k-bubble :text="$t('kirbydesk.workflow.status.' + item.status)" :theme="statusTheme(item.status)" />
+							</li>
+						</ul>
+					</template>
+
+					<template v-else-if="tab === 'history' && history">
+						<k-box v-if="history.error" theme="negative" :text="history.error" />
+						<k-empty v-else-if="history.data.length === 0" icon="history">{{ $t("kirbydesk.workflow.history.none") }}</k-empty>
+						<ul v-else class="k-workflow-list">
+							<li v-for="(entry, index) in history.data" :key="index">
+								<div class="k-workflow-main">
+									<strong>{{ entry.date }}</strong>
+									<span>{{ entry.by }}</span>
+								</div>
+								<span v-if="entry.failed" class="k-workflow-failed">
+									{{ entry.reason ? $t("kirbydesk.workflow.failed.reason", { reason: entry.reason }) : $t("kirbydesk.workflow.failed") }}
+								</span>
+							</li>
+						</ul>
+					</template>
+
+					<template v-else-if="tab === 'github' && github">
+						<k-box v-if="github.error" theme="negative" :text="github.error" />
+						<template v-else>
+							<template v-if="github.data.content">
+								<h2 class="k-workflow-heading">{{ $t("kirbydesk.workflow.content") }}</h2>
+								<ul class="k-workflow-list">
+									<li><strong>{{ $t("kirbydesk.workflow.content.repository") }}</strong><a :href="'https://github.com/' + github.data.content.repository" target="_blank">{{ github.data.content.repository }}</a></li>
+									<li><strong>{{ $t("kirbydesk.workflow.compare") }}</strong><span :class="{ 'k-workflow-failed': !github.data.content.compare }">{{ github.data.content.compare ? $t("kirbydesk.workflow.allowed") : $t("kirbydesk.workflow.missing") }}</span></li>
+									<li><strong>{{ $t("kirbydesk.workflow.start") }}</strong><span :class="{ 'k-workflow-failed': !github.data.publish }">{{ github.data.publish ? $t("kirbydesk.workflow.allowed") : $t("kirbydesk.workflow.missing") }}</span></li>
+								</ul>
+							</template>
+							<h2 class="k-workflow-heading">{{ $t("kirbydesk.workflow.code") }}</h2>
+							<ul class="k-workflow-list">
+								<li><strong>{{ $t("kirbydesk.workflow.code.repository") }}</strong><a :href="'https://github.com/' + github.data.code.repository" target="_blank">{{ github.data.code.repository }}</a></li>
+								<li v-if="github.data.code.last">
+									<strong>{{ $t("kirbydesk.workflow.last") }}</strong>
+									<span :class="{ 'k-workflow-failed': github.data.code.last.failed }">
+										{{ github.data.code.last.failed ? $t("kirbydesk.workflow.failed") + " · " : "" }}{{ github.data.code.last.date }}{{ github.data.code.last.by ? " · " + github.data.code.last.by : "" }}
+									</span>
+								</li>
+							</ul>
+						</template>
+					</template>
 				</k-panel-inside>
 			`
 		}

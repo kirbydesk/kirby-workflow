@@ -19,7 +19,12 @@ class Settings
 		public readonly array $inputs,
 		public readonly string|null $userInput,
 		public readonly int $appId,
-		public readonly string $privateKey
+		public readonly string $privateKey,
+		/** Repository with the published content (for „Changes“) – `null`: no comparison */
+		public readonly string|null $contentRepository = null,
+		public readonly string $contentRef = 'main',
+		/** Workflow that publishes the code (for „Last published“ under „Code“) */
+		public readonly string|null $codeWorkflow = null
 	) {
 	}
 
@@ -56,7 +61,10 @@ class Settings
 			inputs:     $github['inputs'] ?? [],
 			userInput:  $github['userInput'] ?? null,
 			appId:      (int)$github['appId'],
-			privateKey: F::read($keyFile)
+			privateKey: F::read($keyFile),
+			contentRepository: $github['contentRepository'] ?? null,
+			contentRef:        $github['contentRef'] ?? 'main',
+			codeWorkflow:      $github['codeWorkflow'] ?? null
 		);
 	}
 

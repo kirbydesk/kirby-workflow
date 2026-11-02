@@ -1,0 +1,27 @@
+{
+	"name": "kirbydesk/kirby-workflow",
+	"description": "Publish content from Staging to the live website, right from the Panel – and more editorial workflows.",
+	"type": "kirby-plugin",
+	"license": "MIT",
+	"keywords": [
+		"kirby",
+		"kirby-plugin",
+		"publishing",
+		"staging",
+		"github-actions"
+	],
+	"homepage": "https://github.com/kirbydesk/kirby-workflow",
+	"authors": [
+		{
+			"name": "Christian Fickinger",
+			"email": "hello@kirbydesk.com",
+			"homepage": "https://kirbydesk.com"
+		}
+	],
+	"extra": {
+		"installer-name": "kirby-workflow"
+	},
+	"require": {
+		"getkirby/composer-installer": "^1.2"
+	}
+}

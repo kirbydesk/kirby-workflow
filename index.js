@@ -35,10 +35,14 @@ panel.plugin("kirbydesk/workflow", {
 		// end (`workflow.finished`); closed early, the view reports it itself
 		"k-workflow-publish-dialog": {
 			extends: "k-text-dialog",
-			props: { headline: String },
+			props: {
+				headline: String,
+				// Opened again with the button while it runs: straight to the progress
+				running: Boolean
+			},
 			data() {
 				// confirm → running → done | failed
-				return { state: "confirm", reason: null };
+				return { state: this.running ? "running" : "confirm", reason: null };
 			},
 			computed: {
 				title() {
@@ -337,7 +341,13 @@ panel.plugin("kirbydesk/workflow", {
 				unwatched() {
 					this.watched = false;
 				},
+				// While it runs the button opens the progress again – it then shows the end like after „Publish“
 				publish() {
+					if (this.running) {
+						this.watched = true;
+						this.$panel.dialog.open({ component: "k-workflow-publish-dialog", props: { size: "medium", running: true } });
+						return;
+					}
 					this.$panel.dialog.open("workflow/publish");
 				},
 				row(id, label, info) {
@@ -361,7 +371,7 @@ panel.plugin("kirbydesk/workflow", {
 						{{ $t("kirbydesk.workflow") }}
 						<template v-if="!connectionError && current === tabs[0]?.name" #buttons>
 							<k-button
-								:disabled="running || nothingToPublish"
+								:disabled="!running && nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish.content')"
 								variant="filled"

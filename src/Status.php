@@ -186,7 +186,7 @@ class Status
 	}
 
 	/** Date and time in the language of the Panel account („30. Oktober 2026, 14:12“) */
-	public static function date(string $iso, App $kirby): string
+	protected static function date(string $iso, App $kirby): string
 	{
 		$time   = strtotime($iso);
 		$locale = $kirby->user()?->language() ?? 'en';

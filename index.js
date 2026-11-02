@@ -38,13 +38,11 @@ panel.plugin("kirbydesk/workflow", {
 			props: {
 				headline: String,
 				// Opened again with the button while it runs: straight to the progress
-				running: Boolean,
-				// The live website – „View Website“ when it is done
-				website: String
+				running: Boolean
 			},
 			data() {
-				// confirm → running → done | failed; `run`: the failed run on GitHub
-				return { state: this.running ? "running" : "confirm", reason: null, run: null };
+				// confirm → running → done | failed
+				return { state: this.running ? "running" : "confirm", reason: null };
 			},
 			computed: {
 				heading() {
@@ -67,17 +65,14 @@ panel.plugin("kirbydesk/workflow", {
 						failed: this.reason ? { theme: "negative", text: this.reason } : null
 					}[this.state];
 				},
-				// Kirby's own buttons: on the left „Hide“ (it goes on) or „Close“, on the right the useful next step in
-				// Kirby's dark theme – only the box has colour. Own names – Kirby's dialogs already have `cancel`,
+				// Kirby's own buttons: after the question one plain button – „Hide“ while it runs (it goes on), „Close“ at
+				// the end. Only the icon and the box have colour. Own names – Kirby's dialogs already have `cancel`,
 				// `submit`, `close` (methods) and `icon` (prop)
 				cancelOption() {
 					return { confirm: true, running: this.$t("kirbydesk.workflow.hide") }[this.state] ?? this.$t("close");
 				},
 				submitOption() {
-					if (this.state === "confirm") return this.submitButton;
-					if (this.state === "done" && this.website) return { text: this.$t("kirbydesk.workflow.website"), icon: "open", theme: "dark" };
-					if (this.state === "failed" && this.run) return { text: this.$t("kirbydesk.workflow.run"), icon: "github", theme: "dark" };
-					return false;
+					return this.state === "confirm" ? this.submitButton : false;
 				}
 			},
 			created() {
@@ -105,14 +100,11 @@ panel.plugin("kirbydesk/workflow", {
 				finished(status) {
 					this.state = status.failed ? "failed" : "done";
 					this.reason = status.failed?.message ?? null;
-					this.run = status.failed?.url ?? null;
 				},
+				// Return: publish after the question, close at the end – not while it runs
 				onSubmit() {
-					if (this.state === "confirm") return this.start();
-					if (this.state === "running") return;
-					const url = this.state === "done" ? this.website : this.run;
-					if (url) window.open(url, "_blank");
-					this.dismiss();
+					if (this.state === "confirm") this.start();
+					else if (this.state !== "running") this.dismiss();
 				},
 				// Closed while it runs: the view reports the end. Closed after the result: now the lists update
 				dismiss() {
@@ -173,9 +165,7 @@ panel.plugin("kirbydesk/workflow", {
 				// Requested tab (`?tab=`), otherwise the first
 				tab: String,
 				// Is a content repository set up? Then there is a tab „Changes“
-				hasChanges: Boolean,
-				// The live website – for the dialog when it is opened again while publishing runs
-				website: String
+				hasChanges: Boolean
 			},
 			// Everything from GitHub loads after the page shows: `null` = still loading, then { data, error }
 			data() {
@@ -358,7 +348,7 @@ panel.plugin("kirbydesk/workflow", {
 				publish() {
 					if (this.running) {
 						this.watched = true;
-						this.$panel.dialog.open({ component: "k-workflow-publish-dialog", props: { size: "medium", running: true, website: this.website } });
+						this.$panel.dialog.open({ component: "k-workflow-publish-dialog", props: { size: "medium", running: true } });
 						return;
 					}
 					this.$panel.dialog.open("workflow/publish");

@@ -13,8 +13,6 @@ return [
 	'kirbydesk.workflow.done'            => 'Inhalte veröffentlicht',
 	'kirbydesk.workflow.done.text'       => 'Sie sind jetzt auf der Website zu sehen.',
 	'kirbydesk.workflow.error.headline'  => 'Veröffentlichen fehlgeschlagen',
-	'kirbydesk.workflow.website'         => 'Website ansehen',
-	'kirbydesk.workflow.run'             => 'Auf GitHub ansehen',
 	'kirbydesk.workflow.error'           => 'Veröffentlichen fehlgeschlagen: {reason}',
 	'kirbydesk.workflow.error.unknown'   => 'Veröffentlichen fehlgeschlagen.',
 	'kirbydesk.workflow.changes'         => 'Änderungen',

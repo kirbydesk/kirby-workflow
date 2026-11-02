@@ -13,8 +13,6 @@ return [
 	'kirbydesk.workflow.done'            => 'Content published',
 	'kirbydesk.workflow.done.text'       => 'It is now live on the website.',
 	'kirbydesk.workflow.error.headline'  => 'Publishing failed',
-	'kirbydesk.workflow.website'         => 'View Website',
-	'kirbydesk.workflow.run'             => 'View on GitHub',
 	'kirbydesk.workflow.error'           => 'Publishing failed: {reason}',
 	'kirbydesk.workflow.error.unknown'   => 'Publishing failed.',
 	'kirbydesk.workflow.changes'         => 'Changes',

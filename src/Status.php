@@ -60,7 +60,6 @@ class Status
 			'running' => $running !== null,
 			'failed'  => $running === null && $failed !== null ? [
 				'message' => $this->failureMessage($failed['id']),
-				'url'     => $failed['html_url'] ?? null,
 			] : null,
 		];
 	}

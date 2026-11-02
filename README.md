@@ -46,8 +46,7 @@ The settings live outside the repository, so they exist only where content is ed
 		"contentRepository": "owner/website-content",
 		"contentRef": "main",
 		"codeWorkflow": "deploy-staging.yml"
-	},
-	"website": "https://example.com"
+	}
 }
 ```
 
@@ -63,7 +62,6 @@ The settings live outside the repository, so they exist only where content is ed
 | `contentRepository` | Repository with the published content – without it there is no tab **Changes** |
 | `contentRef` | Its branch – default `main` |
 | `codeWorkflow` | Workflow that deploys the code – shown under **GitHub** |
-| `website` | The live website (outside `github`) – after publishing, **View Website** opens it |
 
 Keep the folder `.workflow` away from the web: Kirby's `.htaccess` blocks folders starting with a dot, a separate public folder does too. Make the key readable only for the account running PHP.
 

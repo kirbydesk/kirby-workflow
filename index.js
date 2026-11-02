@@ -240,7 +240,8 @@ panel.plugin("kirbydesk/workflow", {
 					<template v-else-if="current === 'history'">
 						<k-empty v-if="!history" icon="loader" />
 						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
-						<k-items v-else :items="historyItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
+						<!-- One line: date, the person on the right (Kirby's list info) -->
+						<k-items v-else :items="historyItems" layout="list" class="k-workflow-items" />
 					</template>
 
 					<template v-else-if="current === 'github'">

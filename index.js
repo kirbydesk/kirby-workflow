@@ -111,7 +111,7 @@ panel.plugin("kirbydesk/workflow", {
 					return changeItems(this, this.changes.data);
 				},
 				historyItems() {
-					return this.history.data.map((entry, index) => ({
+					return this.history.data.entries.map((entry, index) => ({
 						id: index,
 						// Kirby's clock icon in front of the date (same markup as <k-icon>), not as a column of its own
 						text: '<svg class="k-icon" data-type="clock" aria-hidden="true"><use xlink:href="#icon-clock"></use></svg>' + this.$helper.string.escapeHTML(entry.date),
@@ -165,7 +165,7 @@ panel.plugin("kirbydesk/workflow", {
 						tabs.push(tab("changes", this.$t("kirbydesk.workflow.changes"), "edit", this.changes?.data?.length || null));
 					}
 					// Before the first publish there is no history – no tab (while loading it stays, to not jump)
-					if (this.history === null || this.history.error || this.history.data?.length) {
+					if (this.history === null || this.history.error || this.history.data?.entries?.length) {
 						tabs.push(tab("history", this.$t("kirbydesk.workflow.history"), "clock"));
 					}
 					tabs.push(tab("github", "GitHub", "github"));
@@ -288,7 +288,12 @@ panel.plugin("kirbydesk/workflow", {
 						<template v-if="!history" />
 						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
 						<!-- One line: date, the person on the right (Kirby's list info) -->
-						<k-items v-else :items="historyItems" layout="list" class="k-workflow-items" />
+						<template v-else>
+							<k-items :items="historyItems" layout="list" class="k-workflow-items" />
+							<p v-if="history.data.more" class="k-workflow-more">
+								<a :href="history.data.url" target="_blank">{{ $t("kirbydesk.workflow.history.more") }}</a>
+							</p>
+						</template>
 					</template>
 
 					<template v-else-if="current === 'github'">

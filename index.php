@@ -117,7 +117,18 @@ $extension['api'] = [
 		// Without a connection every tab would be empty – the view then shows one message (GitHub's own answer)
 		$route('connection', fn ($kirby, $settings, $github) => $github->permissions() !== null),
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
-		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history(contentRepository: $settings->contentRepository)),
+		$route('history', function ($kirby, $settings, $github) {
+			$status  = new Status($kirby, $github);
+			$entries = $status->history(contentRepository: $settings->contentRepository);
+
+			return [
+				'entries' => $entries,
+				// Older publishes than shown: link to the commits of the content repository on GitHub
+				// TEMPORARY: always, to look at it – then only with `$status->more`
+				'more'    => true,
+				'url'     => 'https://github.com/' . ($settings->contentRepository ?? $settings->repository) . '/commits',
+			];
+		}),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
 		[
 			// What one publish brought live – a commit never changes, so it is kept

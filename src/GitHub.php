@@ -37,8 +37,14 @@ class GitHub
 	/** Latest runs of the publishing workflow started by hand (newest first) */
 	public function runs(int $limit = 20): array
 	{
+		return $this->runsWithTotal($limit)['runs'];
+	}
+
+	/** Latest runs and how many there are in total */
+	public function runsWithTotal(int $limit = 20): array
+	{
 		$data = $this->request('GET', $this->workflowPath() . '/runs?event=workflow_dispatch&per_page=' . $limit);
-		return $data['workflow_runs'] ?? [];
+		return ['runs' => $data['workflow_runs'] ?? [], 'total' => $data['total_count'] ?? 0];
 	}
 
 	/** Latest runs of any workflow in the repository of the settings (newest first) */

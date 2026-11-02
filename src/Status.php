@@ -12,6 +12,9 @@ class Status
 {
 	protected const RUNNING = ['queued', 'in_progress', 'waiting', 'requested', 'pending'];
 
+	/** After `history()`: are there older runs than those shown? */
+	public bool $more = false;
+
 	public function __construct(
 		protected App $kirby,
 		protected GitHub $github
@@ -89,7 +92,10 @@ class Status
 			}
 		}
 
-		foreach ($this->github->runs($limit) as $run) {
+		$result     = $this->github->runsWithTotal($limit);
+		$this->more = $result['total'] > count($result['runs']);
+
+		foreach ($result['runs'] as $run) {
 			if (in_array($run['status'], static::RUNNING, true) === true || $run['conclusion'] === 'cancelled') {
 				continue;
 			}

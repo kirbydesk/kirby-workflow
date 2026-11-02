@@ -65,3 +65,15 @@
 .k-drawer-options:has(.k-workflow-loading) > .k-drawer-option[type=submit] {
 	display: none;
 }
+
+/* „Older publishes on GitHub“ below the history – a link like the crumbs */
+.k-workflow-more {
+	margin-top: var(--spacing-3);
+	font-size: var(--text-sm);
+}
+.k-workflow-more a {
+	color: var(--color-focus);
+}
+.k-workflow-more a:hover {
+	text-decoration: underline;
+}

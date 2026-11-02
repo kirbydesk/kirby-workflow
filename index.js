@@ -87,9 +87,9 @@ panel.plugin("kirbydesk/workflow", {
 				historyItems() {
 					return this.history.data.map((entry, index) => ({
 						id: index,
-						text: this.$helper.string.escapeHTML(entry.date),
+						// Kirby's clock icon in front of the date (same markup as <k-icon>), not as a column of its own
+						text: '<svg class="k-icon" data-type="clock" aria-hidden="true"><use xlink:href="#icon-clock"></use></svg>' + this.$helper.string.escapeHTML(entry.date),
 						info: this.$helper.string.escapeHTML(entry.by ?? ""),
-						image: { icon: "clock", back: "black" },
 						// With changes: opens what this publish brought live
 						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,
 						buttons: entry.failed ? [this.badge(entry.reason

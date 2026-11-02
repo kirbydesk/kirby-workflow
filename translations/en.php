@@ -3,7 +3,8 @@
 return [
 	'kirbydesk.workflow'                 => 'Workflow',
 	'kirbydesk.workflow.publish'         => 'Publish',
-	'kirbydesk.workflow.running'         => 'Publishing…',
+	'kirbydesk.workflow.publish.content' => 'Publish Content',
+	'kirbydesk.workflow.running'         => 'Publishing content…',
 	'kirbydesk.workflow.confirm'         => 'Publish content?',
 	'kirbydesk.workflow.confirm.text'    => 'All saved content will be published to the live website.',
 	'kirbydesk.workflow.confirm.last'    => 'Last published: {date} by {name}',

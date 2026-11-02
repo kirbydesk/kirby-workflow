@@ -191,7 +191,7 @@ panel.plugin("kirbydesk/workflow", {
 							<k-button
 								:disabled="running || nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"
-								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
+								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish.content')"
 								variant="filled"
 								size="sm"
 								@click="publish"

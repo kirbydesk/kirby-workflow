@@ -3,7 +3,8 @@
 return [
 	'kirbydesk.workflow'                 => 'Workflow',
 	'kirbydesk.workflow.publish'         => 'Veröffentlichen',
-	'kirbydesk.workflow.running'         => 'Wird veröffentlicht …',
+	'kirbydesk.workflow.publish.content' => 'Inhalte veröffentlichen',
+	'kirbydesk.workflow.running'         => 'Inhalte werden veröffentlicht …',
 	'kirbydesk.workflow.confirm'         => 'Inhalte veröffentlichen?',
 	'kirbydesk.workflow.confirm.text'    => 'Alle gespeicherten Inhalte werden auf der Live-Website veröffentlicht.',
 	'kirbydesk.workflow.confirm.last'    => 'Zuletzt veröffentlicht: {date} von {name}',

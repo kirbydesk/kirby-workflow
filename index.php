@@ -68,6 +68,7 @@ $extension['areas'] = [
 						'props'     => [
 							'tab'        => $tab,
 							'hasChanges' => $settings->contentRepository !== null,
+							'website'    => $settings->website,
 						],
 					];
 				},
@@ -84,6 +85,7 @@ $extension['areas'] = [
 						'text'         => I18n::translate('kirbydesk.workflow.confirm.text') . ' ' . I18n::translate('kirbydesk.workflow.confirm.unsaved'),
 						'size'         => 'medium',
 						'submitButton' => I18n::translate('kirbydesk.workflow.publish'),
+						'website'      => $settings()->website,
 					],
 				],
 			],

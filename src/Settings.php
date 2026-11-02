@@ -24,7 +24,9 @@ class Settings
 		public readonly string|null $contentRepository = null,
 		public readonly string $contentRef = 'main',
 		/** Workflow that publishes the code (for „Last published“ under „Code“) */
-		public readonly string|null $codeWorkflow = null
+		public readonly string|null $codeWorkflow = null,
+		/** The live website – „View Website“ after publishing */
+		public readonly string|null $website = null
 	) {
 	}
 
@@ -64,7 +66,8 @@ class Settings
 			privateKey: F::read($keyFile),
 			contentRepository: $github['contentRepository'] ?? null,
 			contentRef:        $github['contentRef'] ?? 'main',
-			codeWorkflow:      $github['codeWorkflow'] ?? null
+			codeWorkflow:      $github['codeWorkflow'] ?? null,
+			website:           is_string($data['website'] ?? null) ? $data['website'] : null
 		);
 	}
 

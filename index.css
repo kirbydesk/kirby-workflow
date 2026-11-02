@@ -64,6 +64,20 @@
 	font-weight: var(--font-semi);
 }
 
+/* The icon carries the result: green when published, red when it failed */
+.k-workflow-dialog-headline[data-state=done] .k-icon {
+	color: var(--color-positive);
+}
+.k-workflow-dialog-headline[data-state=failed] .k-icon {
+	color: var(--color-negative);
+}
+
+/* A single button (only „Hide“ or „Close“) on the right in its own width – Kirby stretches it over the whole dialog */
+.k-workflow-publish-dialog .k-dialog-buttons:not(:has(> .k-button:nth-child(2))) {
+	display: flex;
+	justify-content: flex-end;
+}
+
 /* Drawer while loading: the spinner replaces Kirby's check button at the top right */
 .k-drawer-options:has(.k-workflow-loading) > .k-drawer-option[type=submit] {
 	display: none;

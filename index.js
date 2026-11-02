@@ -38,11 +38,13 @@ panel.plugin("kirbydesk/workflow", {
 			props: {
 				headline: String,
 				// Opened again with the button while it runs: straight to the progress
-				running: Boolean
+				running: Boolean,
+				// The live website – „View Website“ when it is done
+				website: String
 			},
 			data() {
-				// confirm → running → done | failed
-				return { state: this.running ? "running" : "confirm", reason: null };
+				// confirm → running → done | failed; `run`: the failed run on GitHub
+				return { state: this.running ? "running" : "confirm", reason: null, run: null };
 			},
 			computed: {
 				heading() {
@@ -65,15 +67,17 @@ panel.plugin("kirbydesk/workflow", {
 						failed: this.reason ? { theme: "negative", text: this.reason } : null
 					}[this.state];
 				},
-				// Kirby's own buttons: while it runs only „Close“, at the end only „OK“. Own names – Kirby's dialogs already
-				// have `cancel`, `submit`, `close` (methods) and `icon` (prop)
+				// Kirby's own buttons: on the left „Hide“ (it goes on) or „Close“, on the right the useful next step in
+				// Kirby's dark theme – only the box has colour. Own names – Kirby's dialogs already have `cancel`,
+				// `submit`, `close` (methods) and `icon` (prop)
 				cancelOption() {
-					return { confirm: true, running: this.$t("close") }[this.state] ?? false;
+					return { confirm: true, running: this.$t("kirbydesk.workflow.hide") }[this.state] ?? this.$t("close");
 				},
 				submitOption() {
 					if (this.state === "confirm") return this.submitButton;
-					if (this.state === "running") return false;
-					return { text: this.$t("confirm"), icon: "check", theme: this.state === "done" ? "positive" : "negative" };
+					if (this.state === "done" && this.website) return { text: this.$t("kirbydesk.workflow.website"), icon: "open", theme: "dark" };
+					if (this.state === "failed" && this.run) return { text: this.$t("kirbydesk.workflow.run"), icon: "github", theme: "dark" };
+					return false;
 				}
 			},
 			created() {
@@ -101,10 +105,14 @@ panel.plugin("kirbydesk/workflow", {
 				finished(status) {
 					this.state = status.failed ? "failed" : "done";
 					this.reason = status.failed?.message ?? null;
+					this.run = status.failed?.url ?? null;
 				},
 				onSubmit() {
-					if (this.state === "confirm") this.start();
-					else if (this.state !== "running") this.dismiss();
+					if (this.state === "confirm") return this.start();
+					if (this.state === "running") return;
+					const url = this.state === "done" ? this.website : this.run;
+					if (url) window.open(url, "_blank");
+					this.dismiss();
 				},
 				// Closed while it runs: the view reports the end. Closed after the result: now the lists update
 				dismiss() {
@@ -115,7 +123,7 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			template: `
 				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" :cancel-button="cancelOption" :submit-button="submitOption" @cancel="dismiss" @submit="onSubmit">
-					<p class="k-workflow-dialog-headline"><k-icon v-if="headingIcon" :type="headingIcon" />{{ heading }}</p>
+					<p class="k-workflow-dialog-headline" :data-state="state"><k-icon v-if="headingIcon" :type="headingIcon" />{{ heading }}</p>
 					<k-box v-if="box" :theme="box.theme" :text="box.text" />
 				</k-dialog>
 			`
@@ -165,7 +173,9 @@ panel.plugin("kirbydesk/workflow", {
 				// Requested tab (`?tab=`), otherwise the first
 				tab: String,
 				// Is a content repository set up? Then there is a tab „Changes“
-				hasChanges: Boolean
+				hasChanges: Boolean,
+				// The live website – for the dialog when it is opened again while publishing runs
+				website: String
 			},
 			// Everything from GitHub loads after the page shows: `null` = still loading, then { data, error }
 			data() {
@@ -348,7 +358,7 @@ panel.plugin("kirbydesk/workflow", {
 				publish() {
 					if (this.running) {
 						this.watched = true;
-						this.$panel.dialog.open({ component: "k-workflow-publish-dialog", props: { size: "medium", running: true } });
+						this.$panel.dialog.open({ component: "k-workflow-publish-dialog", props: { size: "medium", running: true, website: this.website } });
 						return;
 					}
 					this.$panel.dialog.open("workflow/publish");

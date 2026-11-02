@@ -50,7 +50,7 @@ $extension['areas'] = [
 		'views' => [
 			[
 				'pattern' => 'workflow',
-				'action'  => function () use ($settings) {
+				'action'  => $view = function (string|null $tab = null) use ($settings) {
 					$kirby    = Kirby::instance();
 					$settings = $settings();
 
@@ -59,11 +59,16 @@ $extension['areas'] = [
 						'component' => 'k-workflow-view',
 						'title'     => I18n::translate('kirbydesk.workflow'),
 						'props'     => [
-							'tab'        => $kirby->request()->get('tab'),
+							'tab'        => $tab,
 							'hasChanges' => $settings->contentRepository !== null,
 						],
 					];
 				},
+			],
+			[
+				// Each tab its own address, like Kirby SEO: /workflow/changes, /workflow/history, /workflow/github
+				'pattern' => 'workflow/(changes|history|github)',
+				'action'  => fn (string $tab) => $view($tab),
 			],
 		],
 		'dialogs' => [

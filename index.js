@@ -94,8 +94,8 @@ panel.plugin("kirbydesk/workflow", {
 			// Everything from GitHub loads after the page shows: `null` = still loading, then { data, error }
 			data() {
 				return {
-					// Survives a reload: from the address, otherwise the last one chosen
-					selected: this.tab ?? new URLSearchParams(window.location.search).get("tab") ?? storedTab(),
+					// Survives a reload: from the address (/workflow/history), otherwise the last one chosen
+					selected: this.tab ?? storedTab(),
 					connection: null,
 					changes: null,
 					history: null,
@@ -209,9 +209,7 @@ panel.plugin("kirbydesk/workflow", {
 				select(name) {
 					this.selected = name;
 					// Keep the tab in the address, without a new page – and for the next visit
-					const url = new URL(window.location.href);
-					url.searchParams.set("tab", name);
-					window.history.replaceState(window.history.state, "", url);
+					window.history.replaceState(window.history.state, "", this.$panel.url("workflow/" + name));
 					try {
 						localStorage.setItem("kirbydesk.workflow.tab", name);
 					} catch (e) {}

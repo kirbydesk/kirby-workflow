@@ -8,9 +8,6 @@
 .k-workflow-intro {
 	margin-bottom: var(--spacing-4);
 }
-.k-workflow-rows {
-	margin-bottom: var(--spacing-6);
-}
 .k-workflow-rows > div {
 	display: flex;
 	gap: var(--spacing-4);

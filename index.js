@@ -73,7 +73,20 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			template: `
 				<k-panel-inside class="k-workflow-view">
-					<k-header>{{ $t("kirbydesk.workflow") }}</k-header>
+					<k-header>
+						{{ $t("kirbydesk.workflow") }}
+						<template #buttons>
+							<k-button
+								:disabled="!status || Boolean(running)"
+								:icon="running ? 'loader' : 'cloud-upload'"
+								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
+								variant="filled"
+								theme="positive"
+								size="sm"
+								@click="publish"
+							/>
+						</template>
+					</k-header>
 					<k-section :label="$t('kirbydesk.workflow.publish')">
 						<div class="k-workflow-box">
 							<p class="k-workflow-intro">{{ $t("kirbydesk.workflow.publish.intro") }}</p>
@@ -81,15 +94,6 @@ panel.plugin("kirbydesk/workflow", {
 								<div><dt>{{ $t("kirbydesk.workflow.last") }}</dt><dd>{{ status ? lastPublished : "…" }}</dd></div>
 								<div><dt>{{ $t("kirbydesk.workflow.status") }}</dt><dd>{{ error ?? (status ? state : "…") }}</dd></div>
 							</dl>
-							<k-button
-								:disabled="!status || Boolean(running)"
-								:icon="running ? 'loader' : 'cloud-upload'"
-								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
-								variant="filled"
-								theme="positive"
-								size="lg"
-								@click="publish"
-							/>
 						</div>
 					</k-section>
 				</k-panel-inside>

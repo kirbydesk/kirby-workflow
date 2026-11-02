@@ -45,3 +45,15 @@
 .k-workflow-heading:first-child {
 	margin-top: 0;
 }
+.k-workflow-connection .k-empty-text,
+.k-workflow-connection {
+	flex-direction: column;
+}
+.k-workflow-connection span,
+.k-workflow-connection strong {
+	display: block;
+}
+.k-workflow-connection strong {
+	color: var(--color-text);
+	margin-bottom: var(--spacing-2);
+}

@@ -29,4 +29,6 @@ return [
 	'kirbydesk.workflow.code'            => 'Code',
 	'kirbydesk.workflow.code.repository' => 'Code repository',
 	'kirbydesk.workflow.last'            => 'Last published',
+	'kirbydesk.workflow.connection'      => 'No connection to GitHub',
+	'kirbydesk.workflow.connection.hint' => 'Check the GitHub App and the plugin settings.',
 ];

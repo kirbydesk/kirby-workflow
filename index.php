@@ -57,6 +57,17 @@ $extension['areas'] = [
 					$status   = new Status($kirby, $github);
 					$tab      = $kirby->request()->get('tab', $settings->contentRepository !== null ? 'changes' : 'history');
 
+					// Without a connection every tab would be empty – one clear message instead (GitHub's own answer)
+					try {
+						$github->permissions();
+					} catch (Throwable $e) {
+						return [
+							'component' => 'k-workflow-view',
+							'title'     => I18n::translate('kirbydesk.workflow'),
+							'props'     => ['connection' => $e->getMessage()],
+						];
+					}
+
 					// Each part on its own – one failing (e.g. a missing permission) must not hide the others
 					$try = function (callable $load) {
 						try {

@@ -10,6 +10,8 @@ panel.plugin("kirbydesk/workflow", {
 	components: {
 		"k-workflow-view": {
 			props: {
+				// GitHub's answer when there is no connection – then only this message, no tabs, no button
+				connection: String,
 				tab: String,
 				changes: Object,
 				history: Object,
@@ -33,7 +35,7 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
-				await this.poll();
+				if (!this.connection) await this.poll();
 			},
 			destroyed() {
 				this.$panel.events.off("workflow.started", this.started);
@@ -80,7 +82,7 @@ panel.plugin("kirbydesk/workflow", {
 				<k-panel-inside class="k-workflow-view">
 					<k-header>
 						{{ $t("kirbydesk.workflow") }}
-						<template #buttons>
+						<template v-if="!connection" #buttons>
 							<k-button
 								:disabled="running"
 								:icon="running ? 'loader' : 'cloud-upload'"
@@ -92,9 +94,15 @@ panel.plugin("kirbydesk/workflow", {
 							/>
 						</template>
 					</k-header>
-					<k-tabs :tab="tab" :tabs="tabs" theme="notice" />
+					<k-empty v-if="connection" icon="alert" class="k-workflow-connection">
+						<strong>{{ $t("kirbydesk.workflow.connection") }}</strong>
+						<span>{{ connection }}</span>
+						<span>{{ $t("kirbydesk.workflow.connection.hint") }}</span>
+					</k-empty>
+					<k-tabs v-else :tab="tab" :tabs="tabs" theme="notice" />
 
-					<template v-if="tab === 'changes' && changes">
+					<template v-if="connection" />
+					<template v-else-if="tab === 'changes' && changes">
 						<k-box v-if="changes.error" theme="negative" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
 						<ul v-else class="k-workflow-list">

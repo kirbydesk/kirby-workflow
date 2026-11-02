@@ -4,7 +4,7 @@ Publish content from Staging to the live website, right from the Kirby Panel –
 
 Editors work on Staging. The Panel gets a new area **Workflow**: **Publish Content** starts a GitHub Actions workflow that brings the saved content live. The code on the live website stays as it is.
 
-> Work in progress – not ready for use yet.
+> Early version – feedback welcome.
 
 ## What it shows
 

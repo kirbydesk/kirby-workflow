@@ -38,15 +38,20 @@ panel.plugin("kirbydesk/workflow", {
 					return this.connection?.error ?? null;
 				},
 				// Kirby's list items: title, info on the right, buttons for the state – no own styles
+				// Like kirby-explorer: the title opens it in the Panel, below it the parent pages as links into the
+				// Panel, on the right the page on the website and the state
 				changeItems() {
+					const escape = this.$helper.string.escapeHTML;
 					return this.changes.data.map((item, index) => ({
 						id: index,
-						text: this.$helper.string.escapeHTML(item.title),
-						info: this.$helper.string.escapeHTML(item.path),
-						link: item.url ?? false,
-						target: "_blank",
+						text: escape(item.title),
+						info: item.crumbs.map((crumb) => `<a href="${escape(crumb.panel)}">${escape(crumb.title)}</a>`).join(" › "),
+						link: item.panel ?? false,
 						image: item.image ? { src: item.image, cover: true, back: "pattern" } : { icon: item.type === "file" ? "file" : "page", back: "black" },
-						buttons: [this.badge(this.$t("kirbydesk.workflow.status." + item.status), this.statusTheme(item.status))]
+						buttons: [
+							...(item.url ? [{ icon: "open", link: item.url, target: "_blank", title: this.$t("open"), size: "xs" }] : []),
+							this.badge(this.$t("kirbydesk.workflow.status." + item.status), this.statusTheme(item.status))
+						]
 					}));
 				},
 				historyItems() {

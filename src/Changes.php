@@ -81,34 +81,40 @@ class Changes
 	}
 
 	/** Title, path and – if it exists here – a link */
+	/** Title, crumbs of the parent pages (Panel links like in kirby-explorer), Panel link and the page on the website */
 	protected function describe(array $item): array
 	{
+		$site = $this->kirby->site();
 		$id   = static::pageId($item['directory']);
-		$page = $id === '' ? null : $this->kirby->site()->findPageOrDraft($id);
+		$page = $id === '' ? null : $site->findPageOrDraft($id);
 
 		if ($item['type'] === 'file') {
-			$file = $id === '' ? $this->kirby->site()->file($item['name']) : $page?->file($item['name']);
-
+			$file   = $id === '' ? $site->file($item['name']) : $page?->file($item['name']);
 			$exists = $item['status'] !== 'deleted' && $file !== null;
 
 			return [
 				'type'   => 'file',
 				'status' => $item['status'],
 				'title'  => $item['name'],
-				'path'   => $id,
+				// The page it belongs to is the last crumb
+				'crumbs' => $this->crumbs($id, includeSelf: true),
+				'panel'  => $exists ? $file->panel()->url() : null,
 				'url'    => $exists ? $file->url() : null,
 				// Preview like in Kirby's file lists – small, the list only shows it as a tile
 				'image'  => $exists && $file->type() === 'image' ? $file->thumb(['width' => 96, 'height' => 96, 'crop' => true])->url() : null,
 			];
 		}
 
+		$exists = $item['status'] !== 'deleted';
+
 		if ($id === '') {
 			return [
 				'type'   => 'page',
 				'status' => $item['status'],
-				'title'  => $this->kirby->site()->title()->value(),
-				'path'   => '/',
-				'url'    => $this->kirby->site()->url(),
+				'title'  => $site->title()->value(),
+				'crumbs' => [],
+				'panel'  => $site->panel()->url(),
+				'url'    => $site->url(),
 			];
 		}
 
@@ -116,9 +122,36 @@ class Changes
 			'type'   => 'page',
 			'status' => $item['status'],
 			'title'  => $page?->title()->value() ?? basename($id),
-			'path'   => $id,
-			'url'    => $item['status'] !== 'deleted' ? static::url($page) : null,
+			'crumbs' => $this->crumbs($id, includeSelf: false),
+			'panel'  => $exists ? $page?->panel()->url() : null,
+			'url'    => $exists ? static::url($page) : null,
 		];
+	}
+
+	/** Site and the parent pages that still exist here – each with its Panel link */
+	protected function crumbs(string $id, bool $includeSelf): array
+	{
+		$site   = $this->kirby->site();
+		$crumbs = [['title' => $site->title()->value(), 'panel' => $site->panel()->url()]];
+		$parts  = $id === '' ? [] : explode('/', $id);
+
+		if ($includeSelf === false) {
+			array_pop($parts);
+		}
+
+		$path = [];
+		foreach ($parts as $part) {
+			$path[] = $part;
+			$page   = $site->findPageOrDraft(implode('/', $path));
+
+			if ($page === null) {
+				break;
+			}
+
+			$crumbs[] = ['title' => $page->title()->value(), 'panel' => $page->panel()->url()];
+		}
+
+		return $crumbs;
 	}
 
 	protected static function url(Page|null $page): string|null

@@ -32,5 +32,5 @@ return [
 	'kirbydesk.workflow.connection.hint' => 'Check the GitHub App and the plugin settings.',
 	'kirbydesk.workflow.count.one'       => '1 change',
 	'kirbydesk.workflow.count'           => '{count} changes',
-	'kirbydesk.workflow.history.more' => 'Older publishes on GitHub',
+	'kirbydesk.workflow.history.more' => 'See complete history on GitHub',
 ];

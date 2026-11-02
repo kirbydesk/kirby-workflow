@@ -63,6 +63,18 @@ class GitHub
 		return $files;
 	}
 
+	/** One commit with its changed files */
+	public function commit(string $repository, string $sha): array
+	{
+		return $this->request('GET', '/repos/' . $repository . '/commits/' . rawurlencode($sha));
+	}
+
+	/** Latest commits of a repository (newest first) */
+	public function commits(string $repository, int $limit = 30): array
+	{
+		return $this->request('GET', '/repos/' . $repository . '/commits?per_page=' . $limit);
+	}
+
 	/** Can the App read this repository? */
 	public function canRead(string $repository): bool
 	{

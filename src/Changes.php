@@ -19,23 +19,58 @@ class Changes
 	) {
 	}
 
-	/** Pages and files with `status` changed / new / deleted, sorted by path */
+	/** Not live yet: pages and files with `status` changed / new / deleted, in the order of the content folder */
 	public function toArray(): array
 	{
 		$published = $this->github->tree($this->settings->contentRepository, $this->settings->contentRef);
 		$local     = $this->localFiles();
-		$items     = [];
+		$paths     = [];
 
 		foreach ($local as $path => $sha) {
 			if (isset($published[$path]) === false) {
-				$this->note($items, $path, 'new');
+				$paths[$path] = 'new';
 			} elseif ($published[$path] !== $sha) {
-				$this->note($items, $path, 'changed');
+				$paths[$path] = 'changed';
 			}
 		}
 
 		foreach (array_diff_key($published, $local) as $path => $sha) {
-			$this->note($items, $path, 'deleted');
+			$paths[$path] = 'deleted';
+		}
+
+		return $this->group($paths);
+	}
+
+	/** What one publish brought live – the files of its commit in the content repository */
+	public function fromCommit(string $sha): array
+	{
+		$commit = $this->github->commit($this->settings->contentRepository, $sha);
+		$paths  = [];
+
+		foreach ($commit['files'] ?? [] as $file) {
+			// A renamed file: gone under the old name, new under the new one
+			if ($file['status'] === 'renamed' && isset($file['previous_filename']) === true) {
+				$paths[$file['previous_filename']] = 'deleted';
+			}
+
+			$paths[$file['filename']] = match ($file['status']) {
+				'added'   => 'new',
+				'removed' => 'deleted',
+				'renamed' => 'new',
+				default   => 'changed',
+			};
+		}
+
+		return $this->group($paths);
+	}
+
+	/** Changed files grouped by page and file, described, in the order of the content folder */
+	protected function group(array $paths): array
+	{
+		$items = [];
+
+		foreach ($paths as $path => $status) {
+			$this->note($items, $path, $status);
 		}
 
 		// A page is new or deleted only if all of its text files are – otherwise it changed
@@ -46,14 +81,13 @@ class Changes
 			return [...$this->describe($item), 'sort' => $item['directory'] . '/' . ($item['name'] ?? '')];
 		}, $items);
 
-		// In the order of the content folder: parents before their children, files after their page
+		// Parents before their children, files after their page
 		usort($items, fn ($a, $b) => strcmp($a['sort'], $b['sort']));
-		$items = array_map(function ($item) {
+
+		return array_values(array_map(function ($item) {
 			unset($item['sort']);
 			return $item;
-		}, $items);
-
-		return array_values($items);
+		}, $items));
 	}
 
 	/** Groups a changed file under its page or as a file of a page */

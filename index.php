@@ -66,6 +66,25 @@ $extension['areas'] = [
 				},
 			],
 		],
+		'drawers' => [
+			// What one publish brought live – opened from „History“
+			'workflow/commit/(:any)' => [
+				'load' => function (string $sha) use ($settings) {
+					$kirby    = Kirby::instance();
+					$settings = $settings();
+					$title    = $kirby->request()->get('title');
+
+					return [
+						'component' => 'k-workflow-commit-drawer',
+						'props'     => [
+							'icon'  => 'clock',
+							'title' => is_string($title) && $title !== '' ? $title : I18n::translate('kirbydesk.workflow.history'),
+							'items' => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha),
+						],
+					];
+				},
+			],
+		],
 		'dialogs' => [
 			'workflow/publish' => [
 				'load' => function () use ($settings) {
@@ -140,7 +159,7 @@ $extension['api'] = [
 		// Without a connection every tab would be empty – the view then shows one message (GitHub's own answer)
 		$route('connection', fn ($kirby, $settings, $github) => $github->permissions() !== null),
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
-		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history()),
+		$route('history', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->history(contentRepository: $settings->contentRepository)),
 		$route('github', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->github($settings)),
 		[
 			'pattern' => 'workflow/status',

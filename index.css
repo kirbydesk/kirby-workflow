@@ -19,7 +19,7 @@
 
 /* State on the right like the badges of kirby-explorer – small, not the full height of the row. Colours are
    Kirby's own (theme notice/positive/negative of a filled button) */
-.k-workflow-view .k-item-options .k-button[data-variant=filled] {
+.k-workflow-items .k-item-options .k-button[data-variant=filled] {
 	--button-height: auto;
 	--button-padding: var(--spacing-1);
 	align-self: center;

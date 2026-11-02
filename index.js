@@ -1,3 +1,19 @@
+// Kirby list items for changed pages and files – in „Changes“ and in the drawer of a past publish. Like the file
+// list of kirby-explorer: the title opens it in the Panel, below it the parent pages as links into the Panel,
+// on the right the state
+const changeItems = (vm, list) => {
+	const escape = vm.$helper.string.escapeHTML;
+	const themes = { changed: "notice", new: "positive", deleted: "negative" };
+	return list.map((item, index) => ({
+		id: index,
+		text: escape(item.title),
+		info: item.crumbs.map((crumb) => `<a href="${escape(crumb.panel)}">${escape(crumb.title)}</a>`).join(" › "),
+		link: item.panel ?? false,
+		image: item.image ? { src: item.image, cover: true, back: "pattern" } : { icon: item.type === "file" ? "file" : "page", back: "black" },
+		buttons: [{ text: vm.$t("kirbydesk.workflow.status." + item.status), theme: themes[item.status], variant: "filled", size: "xs" }]
+	}));
+};
+
 // Panel side of kirby-workflow: the view „Workflow“ with the tabs Changes, History and GitHub.
 // The confirmation is a Kirby text dialog built on the server (index.php).
 panel.plugin("kirbydesk/workflow", {
@@ -8,6 +24,21 @@ panel.plugin("kirbydesk/workflow", {
 		"cloud-upload": '<path d="M12 12.586l4.243 4.242-1.415 1.415L13 16.415V22h-2v-5.587l-1.828 1.83-1.415-1.415L12 12.586zM12 2a7.001 7.001 0 0 1 6.954 6.194 5.5 5.5 0 0 1-.953 10.784v-2.014a3.5 3.5 0 1 0-1.112-6.91 5 5 0 1 0-9.777 0 3.5 3.5 0 0 0-1.292 6.88l.18.03v2.014a5.5 5.5 0 0 1-.954-10.784A7 7 0 0 1 12 2z"/>'
 	},
 	components: {
+		// What one publish brought live – same list as „Changes“
+		"k-workflow-commit-drawer": {
+			extends: "k-text-drawer",
+			props: { items: { type: Array, default: () => [] } },
+			computed: {
+				listItems() {
+					return changeItems(this, this.items);
+				}
+			},
+			template: `
+				<k-drawer ref="drawer" class="k-workflow-commit-drawer" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
+					<k-items :items="listItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
+				</k-drawer>
+			`
+		},
 		"k-workflow-view": {
 			props: {
 				// Requested tab (`?tab=`), otherwise the first
@@ -41,22 +72,15 @@ panel.plugin("kirbydesk/workflow", {
 				// Like the file list of kirby-explorer: the title opens it in the Panel, below it the parent pages as
 				// links into the Panel, on the right the state
 				changeItems() {
-					const escape = this.$helper.string.escapeHTML;
-					return this.changes.data.map((item, index) => ({
-						id: index,
-						text: escape(item.title),
-						info: item.crumbs.map((crumb) => `<a href="${escape(crumb.panel)}">${escape(crumb.title)}</a>`).join(" › "),
-						link: item.panel ?? false,
-						image: item.image ? { src: item.image, cover: true, back: "pattern" } : { icon: item.type === "file" ? "file" : "page", back: "black" },
-						buttons: [this.badge(this.$t("kirbydesk.workflow.status." + item.status), this.statusTheme(item.status))]
-					}));
+					return changeItems(this, this.changes.data);
 				},
 				historyItems() {
 					return this.history.data.map((entry, index) => ({
 						id: index,
 						text: this.$helper.string.escapeHTML(entry.date),
 						info: this.$helper.string.escapeHTML(entry.by ?? ""),
-						link: false,
+						// With changes: opens what this publish brought live
+						link: entry.commit ? () => this.$panel.drawer.open("workflow/commit/" + entry.commit, { query: { title: entry.title } }) : false,
 						buttons: entry.failed ? [this.badge(entry.reason
 							? this.$t("kirbydesk.workflow.failed.reason", { reason: entry.reason })
 							: this.$t("kirbydesk.workflow.failed"), "negative")] : []
@@ -178,9 +202,6 @@ panel.plugin("kirbydesk/workflow", {
 				repoLink(repository) {
 					const name = this.$helper.string.escapeHTML(repository);
 					return `<a href="https://github.com/${name}" target="_blank">${name}</a>`;
-				},
-				statusTheme(status) {
-					return { changed: "notice", new: "positive", deleted: "negative" }[status];
 				}
 			},
 			template: `
@@ -213,13 +234,13 @@ panel.plugin("kirbydesk/workflow", {
 						<k-empty v-if="!changes" icon="loader" />
 						<k-box v-else-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
-						<k-items v-else :items="changeItems" layout="list" class="k-workflow-two-lines" />
+						<k-items v-else :items="changeItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
 					</template>
 
 					<template v-else-if="current === 'history'">
 						<k-empty v-if="!history" icon="loader" />
 						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
-						<k-items v-else :items="historyItems" layout="list" class="k-workflow-two-lines" />
+						<k-items v-else :items="historyItems" layout="list" class="k-workflow-items k-workflow-two-lines" />
 					</template>
 
 					<template v-else-if="current === 'github'">
@@ -227,10 +248,10 @@ panel.plugin("kirbydesk/workflow", {
 						<k-box v-else-if="github.error" theme="negative" icon="alert" :text="github.error" />
 						<template v-else>
 							<k-section v-if="github.data.content" :label="$t('kirbydesk.workflow.content')">
-								<k-items :items="contentItems" layout="list" />
+								<k-items :items="contentItems" layout="list" class="k-workflow-items" />
 							</k-section>
 							<k-section :label="$t('kirbydesk.workflow.code')">
-								<k-items :items="codeItems" layout="list" />
+								<k-items :items="codeItems" layout="list" class="k-workflow-items" />
 							</k-section>
 						</template>
 					</template>

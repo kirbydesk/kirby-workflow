@@ -75,9 +75,19 @@ class Status
 	}
 
 	/** Every publish (newest first): date, person and – if it failed – the reason */
-	public function history(int $limit = 20): array
+	public function history(int $limit = 20, string|null $contentRepository = null): array
 	{
 		$entries = [];
+		$commits = [];
+
+		// The commit of a publish: made in the content repository while its run ran (runs never overlap)
+		if ($contentRepository !== null) {
+			try {
+				$commits = $this->github->commits($contentRepository, 50);
+			} catch (\Throwable) {
+				$commits = [];
+			}
+		}
 
 		foreach ($this->github->runs($limit) as $run) {
 			if (in_array($run['status'], static::RUNNING, true) === true || $run['conclusion'] === 'cancelled') {
@@ -90,6 +100,8 @@ class Status
 				'by'     => static::person($run),
 				'failed' => $failed,
 				'reason' => $failed ? $this->failureMessage($run['id']) : null,
+				'commit' => $failed ? null : static::commitOf($run, $commits),
+				'title'  => static::date($run['updated_at'], $this->kirby) . (static::person($run) ? ' · ' . static::person($run) : ''),
 			];
 		}
 
@@ -130,6 +142,22 @@ class Status
 			'publish' => ($permissions['actions'] ?? null) === 'write',
 			'code'    => $code,
 		];
+	}
+
+	/** SHA of the content commit made during a run – `null` if nothing changed (no commit) */
+	protected static function commitOf(array $run, array $commits): string|null
+	{
+		$start = strtotime($run['run_started_at'] ?? $run['created_at']);
+		$end   = strtotime($run['updated_at']);
+
+		foreach ($commits as $commit) {
+			$time = strtotime($commit['commit']['committer']['date'] ?? '');
+			if ($time >= $start && $time <= $end) {
+				return $commit['sha'];
+			}
+		}
+
+		return null;
 	}
 
 	/** The reason is extra – without it („Failed“ alone) the status still shows */

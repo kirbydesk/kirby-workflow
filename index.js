@@ -64,6 +64,10 @@ panel.plugin("kirbydesk/workflow", {
 					}
 					return items;
 				},
+				// The requested tab – or the first one, if it is hidden (no history yet)
+				current() {
+					return this.tabs.find((tab) => tab.name === this.tab)?.name ?? this.tabs[0]?.name;
+				},
 				tabs() {
 					const link = (name) => "/workflow?tab=" + name;
 					const tabs = [];
@@ -164,22 +168,22 @@ panel.plugin("kirbydesk/workflow", {
 							{{ connection.replace(/^GitHub: /, "") }}. {{ $t("kirbydesk.workflow.connection.hint") }}
 						</k-text>
 					</k-box>
-					<k-tabs v-else :tab="tab" :tabs="tabs" theme="notice" />
+					<k-tabs v-else :tab="current" :tabs="tabs" theme="notice" />
 
 					<template v-if="connection" />
 
-					<template v-else-if="tab === 'changes' && changes">
+					<template v-else-if="current === 'changes' && changes">
 						<k-box v-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
 						<k-items v-else :items="changeItems" layout="list" />
 					</template>
 
-					<template v-else-if="tab === 'history' && history">
+					<template v-else-if="current === 'history' && history">
 						<k-box v-if="history.error" theme="negative" icon="alert" :text="history.error" />
 						<k-items v-else :items="historyItems" layout="list" />
 					</template>
 
-					<template v-else-if="tab === 'github' && github">
+					<template v-else-if="current === 'github' && github">
 						<k-box v-if="github.error" theme="negative" icon="alert" :text="github.error" />
 						<template v-else>
 							<k-section v-if="github.data.content" :label="$t('kirbydesk.workflow.content')">

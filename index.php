@@ -86,7 +86,7 @@ $extension['areas'] = [
 							'changes' => $settings->contentRepository !== null ? $try(fn () => (new Changes($kirby, $github, $settings))->toArray()) : null,
 							// Always – without any publish yet the tab is hidden
 							'history' => $try(fn () => $status->history()),
-							'github'  => $tab === 'github' ? $try(fn () => $status->github($settings)) : null,
+							'github'  => $try(fn () => $status->github($settings)),
 						],
 					];
 				},

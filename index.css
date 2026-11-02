@@ -3,3 +3,16 @@
 .k-workflow-view .k-tabs {
 	margin-bottom: var(--spacing-6);
 }
+
+/* Kirby's list with the info on a second line – what Kirby itself does in narrow columns (like kirby-explorer) */
+.k-workflow-two-lines .k-item[data-layout=list] {
+	--item-height: 3rem;
+}
+.k-workflow-two-lines .k-item[data-layout=list] .k-item-content {
+	flex-direction: column;
+	justify-content: center;
+}
+.k-workflow-two-lines .k-item[data-layout=list] .k-item-info {
+	font-size: var(--text-xs);
+	line-height: 18px;
+}

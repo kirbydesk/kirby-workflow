@@ -17,7 +17,6 @@ return [
 	'kirbydesk.workflow.status.new'      => 'new',
 	'kirbydesk.workflow.status.deleted'  => 'deleted',
 	'kirbydesk.workflow.history'         => 'History',
-	'kirbydesk.workflow.history.none'    => 'Nothing published yet.',
 	'kirbydesk.workflow.failed'          => 'failed',
 	'kirbydesk.workflow.failed.reason'   => 'failed: {reason}',
 	'kirbydesk.workflow.content'         => 'Content',

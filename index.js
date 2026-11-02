@@ -71,7 +71,10 @@ panel.plugin("kirbydesk/workflow", {
 						const count = this.changes.data?.length;
 						tabs.push({ name: "changes", label: this.$t("kirbydesk.workflow.changes"), link: link("changes"), badge: count || null });
 					}
-					tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), link: link("history") });
+					// Before the first publish there is no history – no tab
+					if (this.history?.error || this.history?.data?.length) {
+						tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), link: link("history") });
+					}
 					tabs.push({ name: "github", label: "GitHub", link: link("github") });
 					return tabs;
 				}
@@ -173,7 +176,6 @@ panel.plugin("kirbydesk/workflow", {
 
 					<template v-else-if="tab === 'history' && history">
 						<k-box v-if="history.error" theme="negative" icon="alert" :text="history.error" />
-						<k-empty v-else-if="history.data.length === 0" icon="history">{{ $t("kirbydesk.workflow.history.none") }}</k-empty>
 						<k-items v-else :items="historyItems" layout="list" />
 					</template>
 

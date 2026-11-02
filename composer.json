@@ -2,7 +2,7 @@
 	"name": "kirbydesk/kirby-workflow",
 	"description": "Publish content from Staging to the live website, right from the Panel – and more editorial workflows.",
 	"type": "kirby-plugin",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"license": "MIT",
 	"keywords": [
 		"kirby",

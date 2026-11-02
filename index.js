@@ -21,6 +21,11 @@ panel.plugin("kirbydesk/workflow", {
 				return { running: false, timer: null };
 			},
 			computed: {
+				// Known to be nothing new: greyed out like Kirby's Save without changes. Without a comparison (no content
+				// repository, or it failed) the button stays – the plugin can't tell
+				nothingToPublish() {
+					return Boolean(this.changes?.data) && this.changes.data.length === 0;
+				},
 				// Kirby's list items: title, info on the right, buttons for the state – no own styles
 				changeItems() {
 					return this.changes.data.map((item, index) => ({
@@ -151,7 +156,7 @@ panel.plugin("kirbydesk/workflow", {
 						{{ $t("kirbydesk.workflow") }}
 						<template v-if="!connection" #buttons>
 							<k-button
-								:disabled="running"
+								:disabled="running || nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish')"
 								variant="filled"

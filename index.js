@@ -204,10 +204,11 @@ panel.plugin("kirbydesk/workflow", {
 					parts.forEach(async (part) => (this[part] = await get(part)));
 					this.poll();
 				},
+				// Through Kirby, so it always knows the tab (breadcrumb, reload). The view stays the same, the data loaded
+				// stays – only the tab changes
 				select(name) {
 					this.selected = name;
-					// Keep the tab in the address, without a new page
-					window.history.replaceState(window.history.state, "", this.$panel.url("workflow/" + name));
+					this.$go("workflow/" + name);
 				},
 				// Only while publishing runs: is it done? Then say so and show the new state
 				async poll() {

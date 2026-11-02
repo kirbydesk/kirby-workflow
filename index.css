@@ -58,3 +58,8 @@
 	font-size: var(--text-sm);
 	font-weight: var(--font-semi);
 }
+
+/* Drawer while loading: the spinner replaces Kirby's check button at the top right */
+.k-drawer-options:has(.k-workflow-loading) > .k-drawer-option[type=submit] {
+	display: none;
+}

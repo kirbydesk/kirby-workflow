@@ -62,7 +62,11 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			template: `
 				<k-drawer ref="drawer" class="k-workflow-commit-drawer" v-bind="$props" @cancel="$emit('cancel')" @submit="$emit('submit')">
-					<k-empty v-if="list === null" icon="loader" />
+					<!-- While loading: the spinner at the top right, in place of the check button -->
+					<template #options>
+						<k-button v-if="list === null" icon="loader" class="k-drawer-option k-workflow-loading" />
+					</template>
+					<template v-if="list === null" />
 					<k-box v-else-if="error" theme="negative" icon="alert" :text="error" />
 					<!-- The number as Kirby's section label above the list -->
 					<k-section v-else :label="count">

@@ -1,6 +1,3 @@
-.k-workflow-view .k-tabs {
-	margin-bottom: var(--spacing-6);
-}
 .k-workflow-list {
 	background: var(--item-color-back, light-dark(var(--color-white), var(--color-gray-850)));
 	border-radius: var(--rounded);

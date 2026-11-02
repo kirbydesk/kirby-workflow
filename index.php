@@ -6,6 +6,7 @@ use Kirbydesk\Workflow\GitHub;
 use Kirbydesk\Workflow\Settings;
 use Kirbydesk\Workflow\Status;
 use Kirby\Exception\NotFoundException;
+use Kirby\Panel\Panel;
 use Kirby\Toolkit\I18n;
 
 load([
@@ -49,8 +50,14 @@ $extension['areas'] = [
 		'link'  => 'workflow',
 		'views' => [
 			[
+				// Like Kirby SEO: /workflow goes to the first tab
 				'pattern' => 'workflow',
-				'action'  => $view = function (string|null $tab = null) use ($settings) {
+				'action'  => fn () => Panel::go('workflow/' . ($settings()->contentRepository !== null ? 'changes' : 'history')),
+			],
+			[
+				// Each tab its own address, like Kirby SEO: /workflow/changes, /workflow/history, /workflow/github
+				'pattern' => 'workflow/(changes|history|github)',
+				'action'  => function (string $tab) use ($settings) {
 					$kirby    = Kirby::instance();
 					$settings = $settings();
 
@@ -64,11 +71,6 @@ $extension['areas'] = [
 						],
 					];
 				},
-			],
-			[
-				// Each tab its own address, like Kirby SEO: /workflow/changes, /workflow/history, /workflow/github
-				'pattern' => 'workflow/(changes|history|github)',
-				'action'  => fn (string $tab) => $view($tab),
 			],
 		],
 		'dialogs' => [

@@ -212,13 +212,14 @@ panel.plugin("kirbydesk/workflow", {
 						<k-empty v-if="!changes" icon="loader" />
 						<k-box v-else-if="changes.error" theme="negative" icon="alert" :text="changes.error" />
 						<k-empty v-else-if="changes.data.length === 0" icon="check">{{ $t("kirbydesk.workflow.changes.none") }}</k-empty>
-						<k-items v-else :items="changeItems" layout="list" />
+						<!-- Kirby's cardlets in full width: title, below it the path – the image or icon on the left -->
+						<k-items v-else :items="changeItems" layout="cardlets" size="full" />
 					</template>
 
 					<template v-else-if="current === 'history'">
 						<k-empty v-if="!history" icon="loader" />
 						<k-box v-else-if="history.error" theme="negative" icon="alert" :text="history.error" />
-						<k-items v-else :items="historyItems" layout="list" />
+						<k-items v-else :items="historyItems" layout="cardlets" size="full" />
 					</template>
 
 					<template v-else-if="current === 'github'">

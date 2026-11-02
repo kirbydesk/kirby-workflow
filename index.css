@@ -1,0 +1,5 @@
+/* Only exception to Kirby's own styles: less space below the tabs, like Retour (Kirby team) – Kirby's 12 is meant
+   for a section headline below, here the list or empty state follows directly */
+.k-workflow-view .k-tabs {
+	margin-bottom: var(--spacing-6);
+}

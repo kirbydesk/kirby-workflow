@@ -23,7 +23,6 @@
 	--button-padding: var(--spacing-1);
 	align-self: center;
 	margin-inline-end: var(--spacing-2);
-	font-family: var(--code-font-family, var(--font-mono));
 	font-size: 11px;
 	line-height: 1.5;
 	border-radius: var(--rounded);

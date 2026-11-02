@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Terakhir dipublikasikan',
 	'kirbydesk.workflow.connection'      => 'Tidak ada koneksi ke GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Periksa GitHub App dan pengaturan plugin.',
+	'kirbydesk.workflow.exposed'         => 'Pengaturan dapat dibuka di web',
+	'kirbydesk.workflow.exposed.hint'    => 'Siapa pun dapat membaca kunci GitHub App. Blokir akses ke folder tersebut atau pindahkan ke luar folder root web server (opsi {option}).',
 	'kirbydesk.workflow.count.one'       => '1 perubahan',
 	'kirbydesk.workflow.count'           => '{count} perubahan',
 	'kirbydesk.workflow.history.more'    => 'Lihat riwayat lengkap di GitHub',

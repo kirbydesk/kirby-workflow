@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Senast publicerad',
 	'kirbydesk.workflow.connection'      => 'Ingen anslutning till GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Kontrollera GitHub-appen och tilläggets inställningar.',
+	'kirbydesk.workflow.exposed'         => 'Inställningarna kan öppnas på webben',
+	'kirbydesk.workflow.exposed.hint'    => 'Vem som helst kan läsa GitHub-appens nyckel. Blockera åtkomsten till mappen eller flytta den utanför webbserverns rotmapp (alternativet {option}).',
 	'kirbydesk.workflow.count.one'       => '1 ändring',
 	'kirbydesk.workflow.count'           => '{count} ändringar',
 	'kirbydesk.workflow.history.more'    => 'Visa hela historiken på GitHub',

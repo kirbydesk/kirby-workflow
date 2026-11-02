@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Naposledy zveřejněno',
 	'kirbydesk.workflow.connection'      => 'Žádné připojení ke GitHubu',
 	'kirbydesk.workflow.connection.hint' => 'Zkontrolujte GitHub App a nastavení pluginu.',
+	'kirbydesk.workflow.exposed'         => 'Nastavení je dostupné z webu',
+	'kirbydesk.workflow.exposed.hint'    => 'Kdokoli by mohl přečíst klíč GitHub App. Zablokujte přístup ke složce nebo ji přesuňte mimo kořenový adresář webu (volba {option}).',
 	'kirbydesk.workflow.count.one'       => '1 změna',
 	'kirbydesk.workflow.count'           => 'Změny: {count}',
 	'kirbydesk.workflow.history.more'    => 'Zobrazit celou historii na GitHubu',

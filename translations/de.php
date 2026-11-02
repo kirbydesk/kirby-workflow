@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Zuletzt veröffentlicht',
 	'kirbydesk.workflow.connection'      => 'Keine Verbindung zu GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Prüfe die GitHub-App und die Einstellungen des Plugins.',
+	'kirbydesk.workflow.exposed'         => 'Einstellungen im Web abrufbar',
+	'kirbydesk.workflow.exposed.hint'    => 'Jeder könnte den Schlüssel der GitHub-App lesen. Sperre den Zugriff auf den Ordner oder verschiebe ihn aus dem Webroot (Option {option}).',
 	'kirbydesk.workflow.count.one'       => '1 Änderung',
 	'kirbydesk.workflow.count'           => '{count} Änderungen',
 	'kirbydesk.workflow.history.more'    => 'Vollständigen Verlauf auf GitHub ansehen',

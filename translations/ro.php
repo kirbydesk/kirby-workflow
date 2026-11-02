@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Ultima publicare',
 	'kirbydesk.workflow.connection'      => 'Nicio conexiune la GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Verifică GitHub App și setările pluginului.',
+	'kirbydesk.workflow.exposed'         => 'Setările pot fi deschise de pe web',
+	'kirbydesk.workflow.exposed.hint'    => 'Oricine ar putea citi cheia GitHub App. Blochează accesul la folder sau mută-l în afara folderului rădăcină al serverului web (opțiunea {option}).',
 	'kirbydesk.workflow.count.one'       => '1 schimbare',
 	'kirbydesk.workflow.count'           => 'Schimbări: {count}',
 	'kirbydesk.workflow.history.more'    => 'Vezi istoricul complet pe GitHub',

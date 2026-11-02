@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Laatst gepubliceerd',
 	'kirbydesk.workflow.connection'      => 'Geen verbinding met GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Controleer de GitHub App en de instellingen van de plugin.',
+	'kirbydesk.workflow.exposed'         => 'Instellingen via het web te openen',
+	'kirbydesk.workflow.exposed.hint'    => 'Iedereen zou de sleutel van de GitHub App kunnen lezen. Blokkeer de toegang tot de map of verplaats deze buiten de webroot (optie {option}).',
 	'kirbydesk.workflow.count.one'       => '1 wijziging',
 	'kirbydesk.workflow.count'           => '{count} wijzigingen',
 	'kirbydesk.workflow.history.more'    => 'Volledige geschiedenis op GitHub bekijken',

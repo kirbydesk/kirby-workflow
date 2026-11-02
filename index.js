@@ -192,6 +192,11 @@ panel.plugin("kirbydesk/workflow", {
 					if (this.running || !this.hasChanges || this.changes?.error) return true;
 					return this.changes?.data?.length > 0;
 				},
+				// Settings with the key open on the web (only without a separate public folder): their address – then only
+				// this message, no tabs, no button
+				exposed() {
+					return this.connection?.data?.exposed ?? null;
+				},
 				// GitHub's answer when there is no connection – then only this message, no tabs, no button
 				connectionError() {
 					return this.connection?.error ?? null;
@@ -292,7 +297,7 @@ panel.plugin("kirbydesk/workflow", {
 						}
 					};
 					this.connection = await get("connection");
-					if (this.connectionError) return;
+					if (this.connectionError || this.exposed) return;
 					const parts = ["history", "github"].concat(this.hasChanges ? ["changes"] : []);
 					parts.forEach(async (part) => (this[part] = await get(part)));
 					this.poll();
@@ -375,7 +380,7 @@ panel.plugin("kirbydesk/workflow", {
 				<k-panel-inside class="k-workflow-view">
 					<k-header>
 						{{ $t("kirbydesk.workflow") }}
-						<template v-if="!connectionError && current === tabs[0]?.name && showPublish" #buttons>
+						<template v-if="!connectionError && !exposed && current === tabs[0]?.name && showPublish" #buttons>
 							<k-button
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish.content')"
@@ -386,7 +391,13 @@ panel.plugin("kirbydesk/workflow", {
 						</template>
 					</k-header>
 					<!-- Like Kirby's own errors (e.g. a section that could not be loaded): bold start, then the error -->
-					<k-box v-if="connectionError" theme="negative" icon="alert">
+					<k-box v-if="exposed" theme="negative" icon="alert">
+						<k-text size="small">
+							<strong>{{ $t("kirbydesk.workflow.exposed") }}:</strong>
+							{{ exposed.replace(/^https?:\/\//, "") }}. {{ $t("kirbydesk.workflow.exposed.hint", { option: "kirbydesk.workflow.settings" }) }}
+						</k-text>
+					</k-box>
+					<k-box v-else-if="connectionError" theme="negative" icon="alert">
 						<k-text size="small">
 							<strong>{{ $t("kirbydesk.workflow.connection") }}:</strong>
 							{{ connectionError.replace(/^GitHub: /, "") }}. {{ $t("kirbydesk.workflow.connection.hint") }}
@@ -394,7 +405,7 @@ panel.plugin("kirbydesk/workflow", {
 					</k-box>
 					<k-tabs v-else :tab="current" :tabs="tabs" theme="notice" />
 
-					<template v-if="connectionError" />
+					<template v-if="connectionError || exposed" />
 
 					<template v-else-if="current === 'changes'">
 						<template v-if="!changes" />

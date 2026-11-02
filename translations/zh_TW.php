@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => '上次發佈',
 	'kirbydesk.workflow.connection'      => '無法連線到 GitHub',
 	'kirbydesk.workflow.connection.hint' => '請檢查 GitHub App 和外掛的設定。',
+	'kirbydesk.workflow.exposed'         => '設定可透過網路開啟',
+	'kirbydesk.workflow.exposed.hint'    => '任何人都能讀取 GitHub App 的金鑰。請封鎖對此資料夾的存取，或將它移出網站伺服器的根目錄（選項 {option}）。',
 	'kirbydesk.workflow.count.one'       => '1 項變更',
 	'kirbydesk.workflow.count'           => '{count} 項變更',
 	'kirbydesk.workflow.history.more'    => '在 GitHub 上查看完整歷史記錄',

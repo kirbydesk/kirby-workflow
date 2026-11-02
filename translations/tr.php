@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Son yayınlama',
 	'kirbydesk.workflow.connection'      => 'GitHub bağlantısı yok',
 	'kirbydesk.workflow.connection.hint' => 'GitHub App\'i ve eklenti ayarlarını kontrol edin.',
+	'kirbydesk.workflow.exposed'         => 'Ayarlar web üzerinden açılabiliyor',
+	'kirbydesk.workflow.exposed.hint'    => 'Herkes GitHub App\'in anahtarını okuyabilir. Klasöre erişimi engelleyin veya klasörü web sunucusunun kök dizininin dışına taşıyın ({option} seçeneği).',
 	'kirbydesk.workflow.count.one'       => '1 değişiklik',
 	'kirbydesk.workflow.count'           => '{count} değişiklik',
 	'kirbydesk.workflow.history.more'    => 'Tüm geçmişi GitHub\'da görüntüle',

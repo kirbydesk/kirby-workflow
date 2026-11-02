@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Viimeksi julkaistu',
 	'kirbydesk.workflow.connection'      => 'Ei yhteyttä GitHubiin',
 	'kirbydesk.workflow.connection.hint' => 'Tarkista GitHub-sovellus ja liitännäisen asetukset.',
+	'kirbydesk.workflow.exposed'         => 'Asetukset voi avata verkossa',
+	'kirbydesk.workflow.exposed.hint'    => 'Kuka tahansa voisi lukea GitHub-sovelluksen avaimen. Estä pääsy kansioon tai siirrä se pois verkkopalvelimen juurikansiosta (asetus {option}).',
 	'kirbydesk.workflow.count.one'       => '1 muutos',
 	'kirbydesk.workflow.count'           => '{count} muutosta',
 	'kirbydesk.workflow.history.more'    => 'Näytä koko historia GitHubissa',

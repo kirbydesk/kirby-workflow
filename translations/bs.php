@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Posljednje objavljivanje',
 	'kirbydesk.workflow.connection'      => 'Nema veze s GitHubom',
 	'kirbydesk.workflow.connection.hint' => 'Provjerite GitHub App i postavke plugina.',
+	'kirbydesk.workflow.exposed'         => 'Postavke su dostupne na webu',
+	'kirbydesk.workflow.exposed.hint'    => 'Svako bi mogao pročitati ključ za GitHub App. Blokirajte pristup folderu ili ga premjestite izvan korijenskog foldera web servera (opcija {option}).',
 	'kirbydesk.workflow.count.one'       => '1 promjena',
 	'kirbydesk.workflow.count'           => 'Promjene: {count}',
 	'kirbydesk.workflow.history.more'    => 'Pogledajte cijelu historiju na GitHubu',

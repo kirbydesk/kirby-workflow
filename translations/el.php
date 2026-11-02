@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Τελευταία δημοσίευση',
 	'kirbydesk.workflow.connection'      => 'Δεν υπάρχει σύνδεση με το GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Ελέγξτε το GitHub App και τις ρυθμίσεις του plugin.',
+	'kirbydesk.workflow.exposed'         => 'Οι ρυθμίσεις είναι προσβάσιμες από το διαδίκτυο',
+	'kirbydesk.workflow.exposed.hint'    => 'Οποιοσδήποτε θα μπορούσε να διαβάσει το κλειδί του GitHub App. Αποκλείστε την πρόσβαση στον φάκελο ή μετακινήστε τον έξω από τον ριζικό φάκελο του web server (επιλογή {option}).',
 	'kirbydesk.workflow.count.one'       => '1 αλλαγή',
 	'kirbydesk.workflow.count'           => '{count} αλλαγές',
 	'kirbydesk.workflow.history.more'    => 'Δείτε το πλήρες ιστορικό στο GitHub',

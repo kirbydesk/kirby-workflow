@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Última publicació',
 	'kirbydesk.workflow.connection'      => 'Sense connexió amb GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Revisa la GitHub App i la configuració del plugin.',
+	'kirbydesk.workflow.exposed'         => 'Configuració accessible des del web',
+	'kirbydesk.workflow.exposed.hint'    => 'Qualsevol podria llegir la clau de la GitHub App. Bloqueja l\'accés a la carpeta o mou-la fora de l\'arrel web (opció {option}).',
 	'kirbydesk.workflow.count.one'       => '1 canvi',
 	'kirbydesk.workflow.count'           => '{count} canvis',
 	'kirbydesk.workflow.history.more'    => 'Veure l\'historial complet a GitHub',

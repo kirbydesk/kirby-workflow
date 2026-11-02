@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Legutóbb publikálva',
 	'kirbydesk.workflow.connection'      => 'Nincs kapcsolat a GitHubbal',
 	'kirbydesk.workflow.connection.hint' => 'Ellenőrizd a GitHub Appot és a plugin beállításait.',
+	'kirbydesk.workflow.exposed'         => 'A beállítások elérhetők a weben',
+	'kirbydesk.workflow.exposed.hint'    => 'Bárki elolvashatná a GitHub App kulcsát. Tiltsd le a mappa elérését, vagy helyezd át a webszerver gyökérkönyvtárán kívülre ({option} beállítás).',
 	'kirbydesk.workflow.count.one'       => '1 változás',
 	'kirbydesk.workflow.count'           => '{count} változás',
 	'kirbydesk.workflow.history.more'    => 'Teljes előzmények megtekintése a GitHubon',

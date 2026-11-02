@@ -2,15 +2,18 @@
 
 use Kirby\Cms\App as Kirby;
 use Kirbydesk\Workflow\Changes;
+use Kirbydesk\Workflow\Exposure;
 use Kirbydesk\Workflow\GitHub;
 use Kirbydesk\Workflow\Settings;
 use Kirbydesk\Workflow\Status;
+use Kirby\Exception\Exception;
 use Kirby\Exception\NotFoundException;
 use Kirby\Panel\Panel;
 use Kirby\Toolkit\I18n;
 
 load([
 	'Kirbydesk\\Workflow\\Changes'  => __DIR__ . '/src/Changes.php',
+	'Kirbydesk\\Workflow\\Exposure' => __DIR__ . '/src/Exposure.php',
 	'Kirbydesk\\Workflow\\GitHub'   => __DIR__ . '/src/GitHub.php',
 	'Kirbydesk\\Workflow\\Settings' => __DIR__ . '/src/Settings.php',
 	'Kirbydesk\\Workflow\\Status'   => __DIR__ . '/src/Status.php',
@@ -113,8 +116,15 @@ $route = fn (string $pattern, callable $load, string $method = 'GET') => [
 
 $extension['api'] = [
 	'routes' => [
-		// Without a connection every tab would be empty – the view then shows one message (GitHub's own answer)
-		$route('connection', fn ($kirby, $settings, $github) => $github->permissions() !== null),
+		// First: are the settings (with the key) open on the web? Then only that message. Without a connection every
+		// tab would be empty – the view then shows one message (GitHub's own answer)
+		$route('connection', function ($kirby, $settings, $github) {
+			if (($exposed = Exposure::url($kirby)) !== null) {
+				return ['exposed' => $exposed];
+			}
+
+			return ['exposed' => null, 'connected' => $github->permissions() !== null];
+		}),
 		$route('changes', fn ($kirby, $settings, $github) => (new Changes($kirby, $github, $settings))->toArray()),
 		$route('history', function ($kirby, $settings, $github) {
 			$status  = new Status($kirby, $github);
@@ -133,6 +143,11 @@ $extension['api'] = [
 		$route('status', fn ($kirby, $settings, $github) => (new Status($kirby, $github))->toArray()),
 		// Starts publishing – with the name of the Panel account (or its email) for the history
 		$route('publish', function ($kirby, $settings, $github) {
+			// Not while the key can be read by anyone – the view says what to do
+			if (Exposure::url($kirby) !== null) {
+				throw new Exception(message: I18n::translate('kirbydesk.workflow.exposed'));
+			}
+
 			$user = $kirby->user();
 			$github->dispatch($user?->name()->isNotEmpty() ? $user->name()->value() : $user?->email());
 			(new Status($kirby, $github))->markDispatched();

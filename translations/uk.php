@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Остання публікація',
 	'kirbydesk.workflow.connection'      => 'Немає підключення до GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Перевірте GitHub App і налаштування плагіна.',
+	'kirbydesk.workflow.exposed'         => 'Налаштування доступні з інтернету',
+	'kirbydesk.workflow.exposed.hint'    => 'Будь-хто може прочитати ключ GitHub App. Закрийте доступ до папки або перемістіть її за межі кореневої папки вебсервера (опція {option}).',
 	'kirbydesk.workflow.count.one'       => '1 зміна',
 	'kirbydesk.workflow.count'           => 'Змін: {count}',
 	'kirbydesk.workflow.history.more'    => 'Уся історія на GitHub',

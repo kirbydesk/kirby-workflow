@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Laste publikigita',
 	'kirbydesk.workflow.connection'      => 'Neniu konekto al GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Kontrolu la GitHub-aplikaĵon kaj la agordojn de la kromprogramo.',
+	'kirbydesk.workflow.exposed'         => 'Agordoj alireblas per la reto',
+	'kirbydesk.workflow.exposed.hint'    => 'Iu ajn povus legi la ŝlosilon de la GitHub-aplikaĵo. Bloku aliron al la dosierujo aŭ movu ĝin el la radika dosierujo de la retservilo (opcio {option}).',
 	'kirbydesk.workflow.count.one'       => '1 ŝanĝo',
 	'kirbydesk.workflow.count'           => '{count} ŝanĝoj',
 	'kirbydesk.workflow.history.more'    => 'Vidi la tutan historion en GitHub',

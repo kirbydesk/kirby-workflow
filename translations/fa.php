@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'آخرین انتشار',
 	'kirbydesk.workflow.connection'      => 'اتصال به GitHub برقرار نیست',
 	'kirbydesk.workflow.connection.hint' => 'GitHub App و تنظیمات افزونه را بررسی کنید.',
+	'kirbydesk.workflow.exposed'         => 'تنظیمات از طریق وب در دسترس است',
+	'kirbydesk.workflow.exposed.hint'    => 'هر کسی می‌تواند کلید GitHub App را بخواند. دسترسی به پوشه را مسدود کنید یا آن را به بیرون از پوشه اصلی وب‌سرور منتقل کنید (گزینه {option}).',
 	'kirbydesk.workflow.count.one'       => '۱ تغییر',
 	'kirbydesk.workflow.count'           => '{count} تغییر',
 	'kirbydesk.workflow.history.more'    => 'مشاهده تاریخچه کامل در GitHub',

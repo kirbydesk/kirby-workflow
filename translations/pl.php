@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Ostatnia publikacja',
 	'kirbydesk.workflow.connection'      => 'Brak połączenia z GitHubem',
 	'kirbydesk.workflow.connection.hint' => 'Sprawdź GitHub App i ustawienia wtyczki.',
+	'kirbydesk.workflow.exposed'         => 'Ustawienia dostępne w sieci',
+	'kirbydesk.workflow.exposed.hint'    => 'Każdy mógłby odczytać klucz GitHub App. Zablokuj dostęp do folderu lub przenieś go poza katalog główny serwera WWW (opcja {option}).',
 	'kirbydesk.workflow.count.one'       => '1 zmiana',
 	'kirbydesk.workflow.count'           => 'Zmiany: {count}',
 	'kirbydesk.workflow.history.more'    => 'Zobacz pełną historię na GitHubie',

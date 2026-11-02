@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => '最終公開',
 	'kirbydesk.workflow.connection'      => 'GitHubに接続できません',
 	'kirbydesk.workflow.connection.hint' => 'GitHub Appとプラグインの設定を確認してください。',
+	'kirbydesk.workflow.exposed'         => '設定がWebから閲覧可能',
+	'kirbydesk.workflow.exposed.hint'    => '誰でもGitHub Appの鍵を読み取れる状態です。フォルダへのアクセスをブロックするか、Webサーバーの公開フォルダの外に移動してください（オプション {option}）。',
 	'kirbydesk.workflow.count.one'       => '1件の変更',
 	'kirbydesk.workflow.count'           => '{count}件の変更',
 	'kirbydesk.workflow.history.more'    => 'GitHubで全履歴を見る',

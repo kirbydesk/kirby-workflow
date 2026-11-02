@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Paskutinį kartą paskelbta',
 	'kirbydesk.workflow.connection'      => 'Nėra ryšio su GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Patikrinkite GitHub App ir įskiepio nustatymus.',
+	'kirbydesk.workflow.exposed'         => 'Nustatymai pasiekiami internete',
+	'kirbydesk.workflow.exposed.hint'    => 'Bet kas galėtų perskaityti GitHub App raktą. Užblokuokite prieigą prie aplanko arba perkelkite jį už žiniatinklio serverio šakninio aplanko ribų (parinktis {option}).',
 	'kirbydesk.workflow.count.one'       => '1 pakeitimas',
 	'kirbydesk.workflow.count'           => 'Pakeitimai: {count}',
 	'kirbydesk.workflow.history.more'    => 'Peržiūrėti visą istoriją GitHub’e',

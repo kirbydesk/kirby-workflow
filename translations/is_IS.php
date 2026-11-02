@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Síðast gefið út',
 	'kirbydesk.workflow.connection'      => 'Engin tenging við GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Athugaðu GitHub-appið og stillingar viðbótarinnar.',
+	'kirbydesk.workflow.exposed'         => 'Hægt er að opna stillingarnar á vefnum',
+	'kirbydesk.workflow.exposed.hint'    => 'Hver sem er gæti lesið lykil GitHub-appsins. Lokaðu fyrir aðgang að möppunni eða færðu hana út fyrir rótarmöppu vefþjónsins (valkosturinn {option}).',
 	'kirbydesk.workflow.count.one'       => '1 breyting',
 	'kirbydesk.workflow.count'           => '{count} breytingar',
 	'kirbydesk.workflow.history.more'    => 'Sjá alla söguna á GitHub',

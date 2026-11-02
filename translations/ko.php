@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => '마지막 발행',
 	'kirbydesk.workflow.connection'      => 'GitHub에 연결할 수 없음',
 	'kirbydesk.workflow.connection.hint' => 'GitHub App과 플러그인 설정을 확인하세요.',
+	'kirbydesk.workflow.exposed'         => '웹에서 설정을 열 수 있음',
+	'kirbydesk.workflow.exposed.hint'    => '누구나 GitHub App의 키를 읽을 수 있습니다. 폴더에 대한 접근을 차단하거나 웹 서버의 루트 폴더 밖으로 옮기세요({option} 옵션).',
 	'kirbydesk.workflow.count.one'       => '변경 1건',
 	'kirbydesk.workflow.count'           => '변경 {count}건',
 	'kirbydesk.workflow.history.more'    => 'GitHub에서 전체 기록 보기',

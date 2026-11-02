@@ -34,6 +34,8 @@ return [
 	'kirbydesk.workflow.last'            => 'Sist publisert',
 	'kirbydesk.workflow.connection'      => 'Ingen forbindelse til GitHub',
 	'kirbydesk.workflow.connection.hint' => 'Sjekk GitHub-appen og innstillingene for utvidelsen.',
+	'kirbydesk.workflow.exposed'         => 'Innstillingene kan åpnes på nettet',
+	'kirbydesk.workflow.exposed.hint'    => 'Hvem som helst kan lese nøkkelen til GitHub-appen. Blokker tilgangen til mappen, eller flytt den ut av webserverens rotmappe (innstillingen {option}).',
 	'kirbydesk.workflow.count.one'       => '1 endring',
 	'kirbydesk.workflow.count'           => '{count} endringer',
 	'kirbydesk.workflow.history.more'    => 'Se hele historikken på GitHub',

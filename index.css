@@ -27,6 +27,8 @@
 	font-size: var(--text-xs);
 	line-height: 1.5;
 	border-radius: var(--rounded);
+	/* Border like Kirby's badge on a tab */
+	border: 1px solid light-dark(var(--theme-color-500), var(--color-black));
 	pointer-events: none;
 }
 

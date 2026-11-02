@@ -45,7 +45,7 @@ panel.plugin("kirbydesk/workflow", {
 				return { state: this.running ? "running" : "confirm", reason: null };
 			},
 			computed: {
-				title() {
+				heading() {
 					return {
 						confirm: this.headline,
 						running: this.$t("kirbydesk.workflow.running"),
@@ -53,7 +53,7 @@ panel.plugin("kirbydesk/workflow", {
 						failed: this.$t("kirbydesk.workflow.error.headline")
 					}[this.state];
 				},
-				icon() {
+				headingIcon() {
 					return { running: "loader", done: "check", failed: "alert" }[this.state] ?? null;
 				},
 				box() {
@@ -65,11 +65,12 @@ panel.plugin("kirbydesk/workflow", {
 						failed: this.reason ? { theme: "negative", text: this.reason } : null
 					}[this.state];
 				},
-				// Kirby's own buttons: while it runs only „Close“, at the end only „OK“
-				cancel() {
+				// Kirby's own buttons: while it runs only „Close“, at the end only „OK“. Own names – Kirby's dialogs already
+				// have `cancel`, `submit`, `close` (methods) and `icon` (prop)
+				cancelOption() {
 					return { confirm: true, running: this.$t("close") }[this.state] ?? false;
 				},
-				submit() {
+				submitOption() {
 					if (this.state === "confirm") return this.submitButton;
 					if (this.state === "running") return false;
 					return { text: this.$t("confirm"), icon: "check", theme: this.state === "done" ? "positive" : "negative" };
@@ -103,18 +104,18 @@ panel.plugin("kirbydesk/workflow", {
 				},
 				onSubmit() {
 					if (this.state === "confirm") this.start();
-					else if (this.state !== "running") this.close();
+					else if (this.state !== "running") this.dismiss();
 				},
 				// Closed while it runs: the view reports the end. Closed after the result: now the lists update
-				close() {
+				dismiss() {
 					if (this.state === "running") this.$panel.events.emit("workflow.unwatched");
 					if (this.state === "done" || this.state === "failed") this.$panel.events.emit("workflow.acknowledged");
 					this.$emit("cancel");
 				}
 			},
 			template: `
-				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" :cancel-button="cancel" :submit-button="submit" @cancel="close" @submit="onSubmit">
-					<p class="k-workflow-dialog-headline"><k-icon v-if="icon" :type="icon" />{{ title }}</p>
+				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" :cancel-button="cancelOption" :submit-button="submitOption" @cancel="dismiss" @submit="onSubmit">
+					<p class="k-workflow-dialog-headline"><k-icon v-if="headingIcon" :type="headingIcon" />{{ heading }}</p>
 					<k-box v-if="box" :theme="box.theme" :text="box.text" />
 				</k-dialog>
 			`

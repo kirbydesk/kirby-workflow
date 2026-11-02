@@ -53,8 +53,9 @@ panel.plugin("kirbydesk/workflow", {
 						failed: this.$t("kirbydesk.workflow.error.headline")
 					}[this.state];
 				},
+				// Only while it runs: Kirby's spinner shows that something happens. The result is told by the box
 				headingIcon() {
-					return { running: "loader", done: "check", failed: "alert" }[this.state] ?? null;
+					return this.state === "running" ? "loader" : null;
 				},
 				box() {
 					return {
@@ -115,7 +116,7 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			template: `
 				<k-dialog ref="dialog" class="k-workflow-publish-dialog" v-bind="$props" :cancel-button="cancelOption" :submit-button="submitOption" @cancel="dismiss" @submit="onSubmit">
-					<p class="k-workflow-dialog-headline" :data-state="state"><k-icon v-if="headingIcon" :type="headingIcon" />{{ heading }}</p>
+					<p class="k-workflow-dialog-headline"><k-icon v-if="headingIcon" :type="headingIcon" />{{ heading }}</p>
 					<k-box v-if="box" :theme="box.theme" :text="box.text" />
 				</k-dialog>
 			`

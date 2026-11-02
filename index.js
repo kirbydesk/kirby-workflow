@@ -173,6 +173,13 @@ panel.plugin("kirbydesk/workflow", {
 					return tabs;
 				}
 			},
+			// Kirby keeps this view when the address changes (e.g. „Workflow“ in the breadcrumb → first tab) and only
+			// passes the new tab
+			watch: {
+				tab(name) {
+					this.selected = name;
+				}
+			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
 				this.load();

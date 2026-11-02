@@ -304,7 +304,7 @@ panel.plugin("kirbydesk/workflow", {
 						<template v-else>
 							<k-items :items="historyItems" layout="list" class="k-workflow-items" />
 							<p v-if="history.data.more" class="k-workflow-more">
-								<a :href="history.data.url" target="_blank">{{ $t("kirbydesk.workflow.history.more") }}</a>
+								<a :href="history.data.url" target="_blank"><k-icon type="github" />{{ $t("kirbydesk.workflow.history.more") }}</a>
 							</p>
 						</template>
 					</template>

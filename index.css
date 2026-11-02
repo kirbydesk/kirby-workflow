@@ -78,3 +78,9 @@
 .k-workflow-more a:hover {
 	text-decoration: underline;
 }
+.k-workflow-more .k-icon {
+	--icon-size: 14px;
+	display: inline-block;
+	vertical-align: -2px;
+	margin-inline-end: var(--spacing-1);
+}

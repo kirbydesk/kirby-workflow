@@ -78,13 +78,13 @@ panel.plugin("kirbydesk/workflow", {
 					const tabs = [];
 					if (this.changes) {
 						const count = this.changes.data?.length;
-						tabs.push({ name: "changes", label: this.$t("kirbydesk.workflow.changes"), link: link("changes"), badge: count || null });
+						tabs.push({ name: "changes", label: this.$t("kirbydesk.workflow.changes"), icon: "edit", link: link("changes"), badge: count || null });
 					}
 					// Before the first publish there is no history – no tab
 					if (this.history?.error || this.history?.data?.length) {
-						tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), link: link("history") });
+						tabs.push({ name: "history", label: this.$t("kirbydesk.workflow.history"), icon: "clock", link: link("history") });
 					}
-					tabs.push({ name: "github", label: "GitHub", link: link("github") });
+					tabs.push({ name: "github", label: "GitHub", icon: "github", link: link("github") });
 					return tabs;
 				}
 			},

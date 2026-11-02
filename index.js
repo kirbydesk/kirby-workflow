@@ -14,6 +14,15 @@ const changeItems = (vm, list) => {
 	}));
 };
 
+// Last tab chosen – remembered in the browser (may be blocked, then simply the first tab)
+const storedTab = () => {
+	try {
+		return localStorage.getItem("kirbydesk.workflow.tab");
+	} catch (e) {
+		return null;
+	}
+};
+
 // Panel side of kirby-workflow: the view „Workflow“ with the tabs Changes, History and GitHub.
 // The confirmation is a Kirby text dialog built on the server (index.php).
 panel.plugin("kirbydesk/workflow", {
@@ -85,7 +94,8 @@ panel.plugin("kirbydesk/workflow", {
 			// Everything from GitHub loads after the page shows: `null` = still loading, then { data, error }
 			data() {
 				return {
-					selected: this.tab,
+					// Survives a reload: from the address, otherwise the last one chosen
+					selected: this.tab ?? new URLSearchParams(window.location.search).get("tab") ?? storedTab(),
 					connection: null,
 					changes: null,
 					history: null,
@@ -198,8 +208,13 @@ panel.plugin("kirbydesk/workflow", {
 				},
 				select(name) {
 					this.selected = name;
-					// Keep the tab in the address, without a new page
-					window.history.replaceState(window.history.state, "", "?tab=" + name);
+					// Keep the tab in the address, without a new page – and for the next visit
+					const url = new URL(window.location.href);
+					url.searchParams.set("tab", name);
+					window.history.replaceState(window.history.state, "", url);
+					try {
+						localStorage.setItem("kirbydesk.workflow.tab", name);
+					} catch (e) {}
 				},
 				// Only while publishing runs: is it done? Then say so and show the new state
 				async poll() {

@@ -94,13 +94,21 @@ class Status
 				continue;
 			}
 
-			$failed    = $run['conclusion'] !== 'success';
+			$failed = $run['conclusion'] !== 'success';
+			$commit = $failed ? null : static::commitOf($run, $commits);
+
+			// Content unchanged: nothing went live for the content – not in the history. Failed runs stay
+			// (someone wanted to publish), and without a content repository nothing can be told apart
+			if ($failed === false && $commit === null && $contentRepository !== null) {
+				continue;
+			}
+
 			$entries[] = [
 				'date'   => static::date($run['updated_at'], $this->kirby),
 				'by'     => static::person($run),
 				'failed' => $failed,
 				'reason' => $failed ? $this->failureMessage($run['id']) : null,
-				'commit' => $failed ? null : static::commitOf($run, $commits),
+				'commit' => $commit,
 				'title'  => static::date($run['updated_at'], $this->kirby) . (static::person($run) ? ' · ' . static::person($run) : ''),
 			];
 		}

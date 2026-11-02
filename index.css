@@ -17,7 +17,8 @@
 	line-height: 18px;
 }
 
-/* State on the right like the badges of kirby-explorer – small, not the full height of the row */
+/* State on the right like the badges of kirby-explorer – small, not the full height of the row. Colours are
+   Kirby's own (theme notice/positive/negative of a filled button) */
 .k-workflow-view .k-item-options .k-button[data-variant=filled] {
 	--button-height: auto;
 	--button-padding: var(--spacing-1);
@@ -26,23 +27,7 @@
 	font-size: 11px;
 	line-height: 1.5;
 	border-radius: var(--rounded);
-	outline-offset: -1px;
 	pointer-events: none;
-}
-.k-workflow-view .k-item-options .k-button[data-variant=filled][data-theme=notice] {
-	--button-color-back: var(--color-orange-300);
-	--button-color-text: var(--color-orange-900);
-	outline: 1px solid light-dark(var(--color-orange-400), var(--color-orange-900));
-}
-.k-workflow-view .k-item-options .k-button[data-variant=filled][data-theme=positive] {
-	--button-color-back: var(--color-green-300);
-	--button-color-text: var(--color-green-900);
-	outline: 1px solid light-dark(var(--color-green-400), var(--color-green-900));
-}
-.k-workflow-view .k-item-options .k-button[data-variant=filled][data-theme=negative] {
-	--button-color-back: var(--color-red-300);
-	--button-color-text: var(--color-red-900);
-	outline: 1px solid light-dark(var(--color-red-400), var(--color-red-900));
 }
 
 /* Crumbs like the file list of kirby-explorer: links in the focus colour, underlined on hover, „›“ stays grey */

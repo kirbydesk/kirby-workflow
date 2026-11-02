@@ -183,10 +183,12 @@ panel.plugin("kirbydesk/workflow", {
 				};
 			},
 			computed: {
-				// Known to be nothing new: greyed out like Kirby's Save without changes. Without a comparison (no content
-				// repository, or it failed) the button stays – the plugin can't tell
-				nothingToPublish() {
-					return Boolean(this.changes?.data) && this.changes.data.length === 0;
+				// Like Kirby's Save and Discard: only when there is something – or while it runs (opens the progress).
+				// Hidden while „Changes“ loads, so it doesn't flash. Without a comparison (no content repository, or it
+				// failed) it stays – the plugin can't tell
+				showPublish() {
+					if (this.running || !this.hasChanges || this.changes?.error) return true;
+					return this.changes?.data?.length > 0;
 				},
 				// GitHub's answer when there is no connection – then only this message, no tabs, no button
 				connectionError() {
@@ -370,9 +372,8 @@ panel.plugin("kirbydesk/workflow", {
 				<k-panel-inside class="k-workflow-view">
 					<k-header>
 						{{ $t("kirbydesk.workflow") }}
-						<template v-if="!connectionError && current === tabs[0]?.name" #buttons>
+						<template v-if="!connectionError && current === tabs[0]?.name && showPublish" #buttons>
 							<k-button
-								:disabled="!running && nothingToPublish"
 								:icon="running ? 'loader' : 'cloud-upload'"
 								:text="running ? $t('kirbydesk.workflow.running') : $t('kirbydesk.workflow.publish.content')"
 								variant="filled"

@@ -72,13 +72,16 @@ $extension['areas'] = [
 				'load' => function (string $sha) use ($settings) {
 					$kirby    = Kirby::instance();
 					$settings = $settings();
-					$title    = $kirby->request()->get('title');
+					$date     = $kirby->request()->get('date');
+					$by       = $kirby->request()->get('by');
 
 					return [
 						'component' => 'k-workflow-commit-drawer',
 						'props'     => [
 							'icon'  => 'clock',
-							'title' => is_string($title) && $title !== '' ? $title : I18n::translate('kirbydesk.workflow.history'),
+							'title' => I18n::translate('kirbydesk.workflow.history'),
+							'date'  => is_string($date) ? $date : null,
+							'by'    => is_string($by) && $by !== '' ? $by : null,
 							'items' => (new Changes($kirby, new GitHub($kirby, $settings), $settings))->fromCommit($sha),
 						],
 					];

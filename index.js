@@ -184,6 +184,10 @@ panel.plugin("kirbydesk/workflow", {
 			},
 			async created() {
 				this.$panel.events.on("workflow.started", this.started);
+				// /workflow without a tab: the address names the tab shown (/workflow/changes) – no new page
+				if (!this.tab) {
+					window.history.replaceState(window.history.state, "", this.$panel.url("workflow/" + this.current));
+				}
 				this.load();
 			},
 			destroyed() {

@@ -94,10 +94,12 @@ panel.plugin("kirbydesk/workflow", {
 							/>
 						</template>
 					</k-header>
-					<k-box v-if="connection" theme="negative" icon="alert" class="k-workflow-connection">
-						<strong>{{ $t("kirbydesk.workflow.connection") }}</strong>
-						<span>{{ connection }}</span>
-						<span>{{ $t("kirbydesk.workflow.connection.hint") }}</span>
+					<!-- Like Kirby's own errors (e.g. a section that could not be loaded): bold start, then the error -->
+					<k-box v-if="connection" theme="negative" icon="alert">
+						<k-text size="small">
+							<strong>{{ $t("kirbydesk.workflow.connection") }}:</strong>
+							{{ connection.replace(/^GitHub: /, "") }}. {{ $t("kirbydesk.workflow.connection.hint") }}
+						</k-text>
 					</k-box>
 					<k-tabs v-else :tab="tab" :tabs="tabs" theme="notice" />
 

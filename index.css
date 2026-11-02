@@ -45,7 +45,3 @@
 .k-workflow-heading:first-child {
 	margin-top: 0;
 }
-.k-workflow-connection span,
-.k-workflow-connection strong {
-	display: block;
-}

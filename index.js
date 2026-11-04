@@ -197,6 +197,11 @@ panel.plugin("kirbydesk/workflow", {
 				exposed() {
 					return this.connection?.data?.exposed ?? null;
 				},
+				// Without the scheme – here and not in the template: a template literal swallows the backslashes of a
+				// regular expression, and Vue then silently renders nothing at all
+				exposedAddress() {
+					return this.exposed?.replace(/^https?:\/\//, "") ?? "";
+				},
 				// GitHub's answer when there is no connection – then only this message, no tabs, no button
 				connectionError() {
 					return this.connection?.error ?? null;
@@ -394,7 +399,7 @@ panel.plugin("kirbydesk/workflow", {
 					<k-box v-if="exposed" theme="negative" icon="alert">
 						<k-text size="small">
 							<strong>{{ $t("kirbydesk.workflow.exposed") }}:</strong>
-							{{ exposed.replace(/^https?:\/\//, "") }}. {{ $t("kirbydesk.workflow.exposed.hint", { option: "kirbydesk.workflow.settings" }) }}
+							{{ exposedAddress }}. {{ $t("kirbydesk.workflow.exposed.hint", { option: "kirbydesk.workflow.settings" }) }}
 						</k-text>
 					</k-box>
 					<k-box v-else-if="connectionError" theme="negative" icon="alert">
